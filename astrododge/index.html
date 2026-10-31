@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<!--
+  Tapvora Games — WebGL shablon: CRAZYGAMES
+  - Faqat CrazyGames SDK v3 reklamasi. Monetag/Adsterra yoki boshqa reklama skriptlari TAQIQLANGAN.
+  - Basic Launch build (WEB_CRAZYBASIC): reklama chaqirilmaydi, rewarded tugmalar o'chiq.
+  - Full Launch build (WEB_CRAZYGAMES): midgame + rewarded, gameplayStart/Stop, happytime.
+  - Tashqi havolalar yo'q (o'yindagi Maxfiylik tugmasi CrazyGames build'da yashirilgan).
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Astro Dodge</title>
+  <script src="https://sdk.crazygames.com/crazygames-sdk-v3.js"></script>
+  <style>
+    html, body { margin:0; padding:0; width:100%; height:100%; overflow:hidden; background:#090a1a; }
+    body { display:flex; align-items:center; justify-content:center; touch-action:none;
+           -webkit-user-select:none; user-select:none; -webkit-tap-highlight-color:transparent; }
+    #unity-canvas { display:block; background:#090a1a; outline:none; }
+    #loading { position:fixed; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
+               gap:18px; background:#090a1a; color:#ffd34d; font:bold 22px Arial, sans-serif; letter-spacing:2px; }
+    #bar { width:min(60vw, 320px); height:12px; border-radius:6px; background:rgba(255,255,255,0.12); overflow:hidden; }
+    #fill { width:0; height:100%; background:linear-gradient(90deg, #ff9d2e, #ffd34d); transition:width .2s; }
+  </style>
+</head>
+<body>
+  <canvas id="unity-canvas" tabindex="-1"></canvas>
+  <div id="loading"><div>ASTRO DODGE</div><div id="bar"><div id="fill"></div></div></div>
+
+  <script>
+  // =================================================================
+  //  window.TapvoraAds — CrazyGames SDK v3 orqali
+  // =================================================================
+  (function () {
+    var network = 'none', sdk = null, sdkReady = false, busy = false, playing = false;
+
+    function send(msg) { if (window.unityInstance) window.unityInstance.SendMessage('TapvoraWebBridge', 'OnWebAdEvent', msg); }
+
+    // SDK Unity yuklanayotgan paytda ishga tushadi (loadingStart/Stop uchun)
+    var sdkInit = (function () {
+      if (!window.CrazyGames || !window.CrazyGames.SDK) return Promise.resolve(false);
+      sdk = window.CrazyGames.SDK;
+      return sdk.init().then(function () {
+        sdkReady = true;
+        try { sdk.game.loadingStart(); } catch (e) {}
+        return true;
+      }).catch(function (e) { console.warn('[CrazyGames] init', e); return false; });
+    })();
+    window.__crazyLoadingStop = function () {
+      sdkInit.then(function (ok) { if (ok) { try { sdk.game.loadingStop(); } catch (e) {} } });
+    };
+
+    function request(type, onOk, onFail) {
+      if (network !== 'crazygames' || !sdkReady || busy) { onFail(); return; }
+      busy = true;
+      var wasPlaying = playing;
+      try {
+        sdk.ad.requestAd(type, {
+          adStarted: function () { if (wasPlaying) { try { sdk.game.gameplayStop(); } catch (e) {} } },
+          adFinished: function () { busy = false; if (wasPlaying) { try { sdk.game.gameplayStart(); } catch (e) {} } onOk(); },
+          adError: function (err) { busy = false; console.log('[CrazyGames] ad', err); onFail(); }
+        });
+      } catch (e) { busy = false; onFail(); }
+    }
+
+    window.TapvoraAds = {
+      init: function (net) {
+        network = net;
+        sdkInit.then(function (ok) {
+          send(ok && net === 'crazygames' ? 'rewarded_ready_1' : 'rewarded_ready_0');
+          if (ok) send('ready');
+        });
+      },
+      // Midgame chastotasini CrazyGames o'zi boshqaradi (eng ko'pi 3 daqiqada 1 ta)
+      showInterstitial: function () {
+        request('midgame', function () { send('inter_done'); }, function () { send('inter_done'); });
+      },
+      showRewarded: function () {
+        request('rewarded', function () { send('reward_ok'); }, function () { send('reward_fail'); });
+      },
+      gameplayStart: function () { playing = true; if (sdkReady) { try { sdk.game.gameplayStart(); } catch (e) {} } },
+      gameplayStop: function () { playing = false; if (sdkReady) { try { sdk.game.gameplayStop(); } catch (e) {} } },
+      happyTime: function () { if (sdkReady && network === 'crazygames') { try { sdk.game.happytime(); } catch (e) {} } },
+      setBannerVisible: function () {},
+      locale: function () {
+        try { if (sdkReady && sdk.user && sdk.user.systemInfo && sdk.user.systemInfo.locale) return sdk.user.systemInfo.locale; } catch (e) {}
+        return navigator.language || 'en';
+      }
+    };
+  })();
+
+  // =================================================================
+  //  Joylashuv: o'yin vertikal — kompyuterda o'rtada 9:16, telefonda butun ekran
+  // =================================================================
+  var canvas = document.getElementById('unity-canvas');
+  function fit() {
+    var w = window.innerWidth, h = window.innerHeight;
+    var cw = Math.min(w, Math.round(h * 0.62));
+    canvas.style.width = cw + 'px';
+    canvas.style.height = h + 'px';
+  }
+  window.addEventListener('resize', fit);
+  fit();
+
+  document.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+  document.addEventListener('touchmove', function (e) { e.preventDefault(); }, { passive: false });
+  window.addEventListener('keydown', function (e) {
+    if ([32, 37, 38, 39, 40].indexOf(e.keyCode) > -1) e.preventDefault();
+  }, { passive: false });
+  window.addEventListener('wheel', function (e) { e.preventDefault(); }, { passive: false });
+  canvas.addEventListener('pointerdown', function () { canvas.focus(); });
+
+  // =================================================================
+  //  Unity loader
+  // =================================================================
+  var buildUrl = "Build";
+  var config = {
+    arguments: [],
+    dataUrl: buildUrl + "/astrododge.data.unityweb",
+    frameworkUrl: buildUrl + "/astrododge.framework.js.unityweb",
+    codeUrl: buildUrl + "/astrododge.wasm.unityweb",
+    streamingAssetsUrl: "StreamingAssets",
+    companyName: "Tapvora Games",
+    productName: "Astro Dodge",
+    productVersion: "1.0.0",
+    devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2)
+  };
+
+  var script = document.createElement('script');
+  script.src = buildUrl + "/astrododge.loader.js";
+  script.onload = function () {
+    createUnityInstance(canvas, config, function (p) {
+      document.getElementById('fill').style.width = Math.round(p * 100) + '%';
+    }).then(function (instance) {
+      window.unityInstance = instance;
+      document.getElementById('loading').style.display = 'none';
+      window.__crazyLoadingStop();
+      canvas.focus();
+    }).catch(function (err) {
+      console.error(err);
+      document.getElementById('loading').firstChild.textContent = 'ERROR';
+    });
+  };
+  document.body.appendChild(script);
+
+  document.addEventListener('visibilitychange', function () {
+    try {
+      if (typeof WEBAudio !== 'undefined' && WEBAudio.audioContext) {
+        if (document.hidden) WEBAudio.audioContext.suspend(); else WEBAudio.audioContext.resume();
+      }
+    } catch (e) {}
+  });
+  </script>
+</body>
+</html>
