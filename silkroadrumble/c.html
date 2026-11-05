@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang='uz'>
+<head>
+<meta charset='utf-8'>
+<meta name='viewport' content='width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no'>
+<meta name='theme-color' content='#14203f'>
+<title>Silk Road Rumble</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+html,body{height:100%;overflow:hidden;overscroll-behavior:none;background:#14203f;color:#faf5eb;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;touch-action:none}
+body{background:radial-gradient(circle at 50% 0%,#20409a 0%,#14203f 60%)}
+.screen{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+.on{display:flex}
+h1{font-size:30px;color:#f5c346;letter-spacing:1px;text-align:center}
+.sub{opacity:.75;margin:6px 0 26px;text-align:center}
+input{width:100%;max-width:320px;font-size:22px;padding:14px 16px;border-radius:14px;border:3px solid #1fa2a6;background:#0c142d;color:#fff;text-align:center;user-select:text;-webkit-user-select:text}
+button.big{margin-top:18px;width:100%;max-width:320px;font-size:24px;font-weight:800;padding:16px;border:0;border-radius:14px;background:#f5c346;color:#14203f}
+#pad{padding:0}
+#bar{position:absolute;top:0;left:0;right:0;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;background:rgba(0,0,0,.25);font-weight:700}
+#me{font-size:20px}
+#ver{position:absolute;left:14px;bottom:-16px;font-size:11px;font-weight:700;color:#f5c346;opacity:.7}
+#status{font-size:13px;opacity:.8;text-align:right;max-width:60%}
+#stick{position:absolute;left:0;top:56px;bottom:0;width:64%}
+#base{position:absolute;width:190px;height:190px;border-radius:50%;border:4px solid rgba(31,162,166,.8);background:rgba(31,162,166,.15);left:30%;top:72%;transform:translate(-50%,-50%);opacity:.6;transition:opacity .15s}
+#base.act2{opacity:1}
+#knob{position:absolute;width:84px;height:84px;border-radius:50%;background:#1fa2a6;left:50%;top:50%;margin:-42px 0 0 -42px;box-shadow:0 4px 14px rgba(0,0,0,.4)}
+#stickLbl{position:absolute;left:19%;top:calc(72% + 112px);transform:translateX(-50%);font-weight:800;opacity:.75;font-size:14px;letter-spacing:1px;pointer-events:none}
+.btn{position:absolute;border:0;border-radius:50%;color:#fff;font-weight:900;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05}
+.btn small{font-size:11px;font-weight:700;opacity:.85;margin-top:3px}
+.btn .ic{font-size:30px}
+#dash{right:6%;bottom:9%;width:160px;height:160px;background:#e0443a;font-size:28px;box-shadow:0 8px 0 #8f2620}
+#dash.p{transform:translateY(5px);box-shadow:0 3px 0 #8f2620}
+#act{right:calc(6% + 22px);bottom:calc(9% + 185px);width:116px;height:116px;background:#f5c346;color:#14203f;font-size:19px;box-shadow:0 7px 0 #a37c1c;display:none}
+#act.on{display:flex}
+#act.p{transform:translateY(5px);box-shadow:0 2px 0 #a37c1c}
+@media (max-height:480px){#dash{width:120px;height:120px;font-size:22px}#act{width:92px;height:92px;bottom:calc(9% + 140px);font-size:16px}#base{width:150px;height:150px}#knob{width:66px;height:66px;margin:-33px 0 0 -33px}}
+.hint{position:absolute;bottom:10px;left:0;right:0;text-align:center;font-size:12px;opacity:.6}
+#flash{position:absolute;inset:0;background:#e0443a;opacity:0;pointer-events:none;transition:opacity .25s}
+#rot{position:absolute;inset:0;z-index:9;background:#14203f;display:none;flex-direction:column;align-items:center;justify-content:center;font-size:24px;font-weight:800;text-align:center;padding:24px;color:#f5c346;line-height:1.3}
+#rot b{font-size:72px;display:block;margin-bottom:8px}
+@media (orientation:portrait){#rot{display:flex}}
+</style>
+</head>
+<body>
+<div id='join' class='screen on'>
+  <h1>SILK ROAD RUMBLE</h1>
+  <div class='sub'>Ipak yo'lidagi to'polon · Tapvora Games</div>
+  <input id='name' maxlength='14' placeholder='Ismingiz'>
+  <button class='big' id='go'>O'YINGA KIRISH</button>
+</div>
+<div id='pad' class='screen'>
+  <div id='bar'><div id='me'>—</div><div id='ver'>v5</div><div id='status'>Ulanmoqda...</div></div>
+  <div id='stick'><div id='base'><div id='knob'></div></div></div>
+  <div id='stickLbl'>YURISH</div>
+  <button id='act' class='btn'><span class='ic'>✋</span><span id='actl'>OL / OT</span><small id='acts'>uloq</small></button>
+  <button id='dash' class='btn'><span class='ic'>⚡</span>ZARB<small>tezlanib urish</small></button>
+  <div class='hint'>Chap — yurish · ⚡ ZARB — tez otilib raqibni urish</div>
+  <div id='flash'></div>
+  <div id='rot'><b>&#8635;</b>Telefonni yoting<br>(gorizontal holatda o'ynang)</div>
+</div>
+<!-- Ekran o'chmasin: ko'rinmas, ovozsiz, aylanib turuvchi kichik video (NoSleep usuli) -->
+<video id='ns' muted playsinline loop style='position:absolute;width:1px;height:1px;opacity:0;pointer-events:none'><source src='data:video/webm;base64,GkXfo59ChoEBQveBAULygQRC84EIQoKEd2VibUKHgQJChYECGFOAZwEAAAAAAAH9EU2bdLpNu4tTq4QVSalmU6yBoU27i1OrhBZUrmtTrIHYTbuMU6uEElTDZ1OsggEeTbuMU6uEHFO7a1OsggHn7AEAAAAAAABZAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAVSalmsirXsYMPQkBNgI1MYXZmNjAuMTYuMTAwV0GNTGF2ZjYwLjE2LjEwMESJiECfQAAAAAAAFlSua8GuAQAAAAAAADjXgQFzxYhvLmVVhuiZOJyBACK1nIN1bmSIgQCGhVZfVlA4g4EBI+ODhDuaygDgibCBELqBEJqBAhJUw2f8c3OgY8CAZ8iaRaOHRU5DT0RFUkSHjUxhdmY2MC4xNi4xMDBzc9ZjwItjxYhvLmVVhuiZOGfIoUWjh0VOQ09ERVJEh5RMYXZjNjAuMzEuMTAyIGxpYnZweGfIoUWjiERVUkFUSU9ORIeTMDA6MDA6MDIuMDAwMDAwMDAwAB9DtnXD54EAo6OBAACAEAIAnQEqEAAQAABHCIWFiJmEiAICAAwNYAD+/6tQgKOZgQPoALEBAAEQEAAYADA/9AwAAAD+/6tQgBxTu2uRu4+zgQC3iveBAfGCAZ/wgQM=' type='video/webm'><source src='data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAMpbW9vdgAAAGxtdmhkAAAAAAAAAAAAAAAAAAAD6AAAB9AAAQAAAQAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAlN0cmFrAAAAXHRraGQAAAADAAAAAAAAAAAAAAABAAAAAAAAB9AAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAABAAAAAQAAAAAAAkZWR0cwAAABxlbHN0AAAAAAAAAAEAAAfQAAAAAAABAAAAAAHLbWRpYQAAACBtZGhkAAAAAAAAAAAAAAAAAABAAAAAgABVxAAAAAAALWhkbHIAAAAAAAAAAHZpZGUAAAAAAAAAAAAAAABWaWRlb0hhbmRsZXIAAAABdm1pbmYAAAAUdm1oZAAAAAEAAAAAAAAAAAAAACRkaW5mAAAAHGRyZWYAAAAAAAAAAQAAAAx1cmwgAAAAAQAAATZzdGJsAAAAtnN0c2QAAAAAAAAAAQAAAKZhdmMxAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAABAAEABIAAAASAAAAAAAAAABFUxhdmM2MC4zMS4xMDIgbGlieDI2NAAAAAAAAAAAAAAAGP//AAAALGF2Y0MBQsAK/+EAFWdCwAraewEQAAADABAAAAMAIPEiagEABGjOD8gAAAAQcGFzcAAAAAEAAAABAAAAFGJ0cnQAAAAAAAAKOAAACjgAAAAYc3R0cwAAAAAAAAABAAAAAgAAQAAAAAAUc3RzcwAAAAAAAAABAAAAAQAAABxzdHNjAAAAAAAAAAEAAAABAAAAAgAAAAEAAAAcc3RzegAAAAAAAAAAAAAAAgAAAoUAAAAJAAAAFHN0Y28AAAAAAAAAAQAAA1kAAABidWR0YQAAAFptZXRhAAAAAAAAACFoZGxyAAAAAAAAAABtZGlyYXBwbAAAAAAAAAAAAAAAAC1pbHN0AAAAJal0b28AAAAdZGF0YQAAAAEAAAAATGF2ZjYwLjE2LjEwMAAAAAhmcmVlAAAClm1kYXQAAAJvBgX//2vcRem95tlIt5Ys2CDZI+7veDI2NCAtIGNvcmUgMTY0IHIzMTA4IDMxZTE5ZjkgLSBILjI2NC9NUEVHLTQgQVZDIGNvZGVjIC0gQ29weWxlZnQgMjAwMy0yMDIzIC0gaHR0cDovL3d3dy52aWRlb2xhbi5vcmcveDI2NC5odG1sIC0gb3B0aW9uczogY2FiYWM9MCByZWY9MSBkZWJsb2NrPTE6MDowIGFuYWx5c2U9MHgxOjB4MTExIG1lPWhleCBzdWJtZT0yIHBzeT0xIHBzeV9yZD0xLjAwOjAuMDAgbWl4ZWRfcmVmPTAgbWVfcmFuZ2U9MTYgY2hyb21hX21lPTEgdHJlbGxpcz0wIDh4OGRjdD0wIGNxbT0wIGRlYWR6b25lPTIxLDExIGZhc3RfcHNraXA9MSBjaHJvbWFfcXBfb2Zmc2V0PTAgdGhyZWFkcz0xIGxvb2thaGVhZF90aHJlYWRzPTEgc2xpY2VkX3RocmVhZHM9MCBucj0wIGRlY2ltYXRlPTEgaW50ZXJsYWNlZD0wIGJsdXJheV9jb21wYXQ9MCBjb25zdHJhaW5lZF9pbnRyYT0wIGJmcmFtZXM9MCB3ZWlnaHRwPTAga2V5aW50PTI1MCBrZXlpbnRfbWluPTEgc2NlbmVjdXQ9NDAgaW50cmFfcmVmcmVzaD0wIHJjX2xvb2thaGVhZD0xMCByYz1jcmYgbWJ0cmVlPTEgY3JmPTIzLjAgcWNvbXA9MC42MCBxcG1pbj0wIHFwbWF4PTY5IHFwc3RlcD00IGlwX3JhdGlvPTEuNDAgYXE9MToxLjAwAIAAAAAOZYiEBb///w9FAAFPf4AAAAAFQZogFfU=' type='video/mp4'></video>
+<script>
+var VER=5;
+var ws=null, name='', mx=0, my=0, lastSent='', stickId=null;
+var $=function(id){return document.getElementById(id)};
+var did='';
+try{ $('name').value=localStorage.getItem('srr_name')||''; did=localStorage.getItem('srr_id')||''; }catch(e){}
+if(!did){ did=Math.random().toString(36).substring(2,10); try{ localStorage.setItem('srr_id',did); }catch(e){} }
+var joinedOnce=false;
+$('name').onfocus=function(){ this.select(); };
+
+// Uzoq bosib turganda menyu chiqmasin, ikki marta bosganda kattalashmasin
+document.addEventListener('contextmenu',function(e){ e.preventDefault(); });
+document.addEventListener('gesturestart',function(e){ e.preventDefault(); });
+
+function lockLand(){ try{ if(screen.orientation&&screen.orientation.lock){ screen.orientation.lock('landscape').catch(function(){}); } }catch(e){} }
+
+$('go').onclick=function(){
+  name=($('name').value||'').trim()||'Mehmon';
+  try{ localStorage.setItem('srr_name',name); }catch(e){}
+  $('join').classList.remove('on'); $('pad').classList.add('on');
+  $('me').textContent=name;
+  try{ var d=document.documentElement; var fs=d.requestFullscreen||d.webkitRequestFullscreen; if(fs){ var pr=fs.call(d); if(pr&&pr.then) pr.then(lockLand).catch(function(){}); } }catch(e){}
+  lockLand();
+  keepAwake();
+  connect();
+};
+
+// O'yin yangilangan bo'lsa telefon sahifasi o'zi yangilanadi
+function checkVer(){
+  try{ fetch('/?_='+Date.now(),{cache:'no-store'}).then(function(r){return r.text();}).then(function(t){
+    var m=t.match(/var VER=(\d+);/); if(m&&parseInt(m[1],10)!==VER) location.reload();
+  }).catch(function(){}); }catch(e){}
+}
+// Onlayn rejim: QR manzilida ?r=XONA bor (brauzer versiyasi, PeerJS orqali)
+var ROOM=((location.search.match(/[?&]r=([A-Za-z0-9]+)/)||[])[1]||'').toUpperCase();
+function loadPeer(cb){
+  if(window.Peer) return cb();
+  var sc=document.createElement('script'); sc.src='https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js';
+  sc.onload=function(){cb();}; sc.onerror=function(){cb('yuklanmadi');}; document.head.appendChild(sc);
+}
+// WebSocket bilan bir xil ko'rinishdagi obyekt: send, readyState, bufferedAmount, onopen/onclose/onmessage
+function peerLink(room){
+  var L={readyState:0,why:'',c:null,p:null,
+    get bufferedAmount(){ try{ return L.c.dataChannel.bufferedAmount||0; }catch(e){ return 0; } },
+    send:function(t){ if(L.c&&L.readyState===1) L.c.send(t); }};
+  function fail(){
+    if(L.readyState===3) return; L.readyState=3;
+    try{ L.c&&L.c.close(); }catch(e){} try{ L.p&&L.p.destroy(); }catch(e){}
+    if(L.onclose) L.onclose();
+  }
+  loadPeer(function(err){
+    if(err){ L.why='Internet sekin — qayta urinilmoqda'; return fail(); }
+    var p=new Peer({debug:0}); L.p=p;
+    p.on('open',function(){
+      var c=p.connect('tapvora-srr-'+room,{serialization:'raw',reliable:true}); L.c=c;
+      c.on('open',function(){ L.readyState=1; if(L.onopen) L.onopen(); });
+      c.on('data',function(d){ if(L.onmessage) L.onmessage({data:String(d)}); });
+      c.on('close',fail); c.on('error',fail);
+    });
+    p.on('error',function(e){ if(e&&e.type==='peer-unavailable') L.why='O\'yin topilmadi — ekrandagi QR kodni qayta skanerlang'; fail(); });
+    setTimeout(function(){ if(L.readyState===0) fail(); },15000);
+  });
+  return L;
+}
+function connect(){
+  var s=ROOM?peerLink(ROOM):new WebSocket('ws://'+location.host+'/ws'); ws=s;
+  s.onopen=function(){
+    var again=joinedOnce;
+    s.send((joinedOnce?'r:':'n:')+did+'|'+name);
+    s.send('v:'+VER);
+    joinedOnce=true; $('status').textContent='Ulandi!';
+    lastSent=''; flush(true);
+    if(again&&!ROOM) checkVer();
+  };
+  // Faqat joriy ulanish uzilsa qayta ulanamiz (eski ulanishlar takrorlanib ketmasin)
+  s.onclose=function(){ if(ws!==s) return; $('status').textContent=s.why||'Uzildi... qayta ulanmoqda'; setTimeout(connect,ROOM?2500:1200); };
+  s.onmessage=function(e){
+    var m=e.data;
+    if(m==='v'){ try{navigator.vibrate&&navigator.vibrate(120);}catch(x){} $('flash').style.opacity=.5; setTimeout(function(){$('flash').style.opacity=0;},150); }
+    else if(m.indexOf('k:1')===0){ var q=m.split(':'); $('actl').textContent=q[2]||'OL / OT'; $('acts').textContent=q[3]||'uloq'; $('act').classList.add('on'); }
+    else if(m==='k:0'){ $('act').classList.remove('on'); }
+    else if(m.indexOf('s:')===0){ $('status').textContent=m.substring(2); }
+    else if(m.indexOf('c:')===0){ var p=m.split(':'); $('me').textContent=p[2]; $('me').style.color=p[1]; $('knob').style.background=p[1]; $('base').style.borderColor=p[1]; }
+  };
+}
+// Ekran o'chib qolmasin (aks holda telefon uziladi).
+// Wake Lock faqat https'da ishlaydi, shuning uchun zaxira — ko'rinmas video.
+var wakeLock=null;
+function keepAwake(){
+  try{ if(navigator.wakeLock&&window.isSecureContext){ navigator.wakeLock.request('screen').then(function(l){wakeLock=l;}).catch(function(){}); } }catch(e){}
+  try{ var v=$('ns'); var p=v.play(); if(p&&p.catch) p.catch(function(){}); }catch(e){}
+}
+document.addEventListener('visibilitychange',function(){ if(document.visibilityState==='visible'&&name) keepAwake(); });
+document.addEventListener('touchstart',function(){ var v=$('ns'); if(name&&v&&v.paused) keepAwake(); },{passive:true});
+function send(t){ if(ws&&ws.readyState===1) ws.send(t); }
+
+// ---- Joystik ----
+// Suzuvchi: chap yarmining istalgan joyiga bosing — shu yerda paydo bo'ladi.
+// Barmoq doiradan chiqib ketsa, markaz barmoq ortidan suriladi: hech qachon tugab qolmaydi.
+var base=$('base'), knob=$('knob'), stick=$('stick');
+var R=78, DEAD=0.08, FULL=0.8, cx=0, cy=0, lastT=0;
+function calcR(){
+  var m=Math.min(window.innerWidth,window.innerHeight);
+  R=Math.max(52,Math.min(86,Math.round(m*0.19)));
+  base.style.width=base.style.height=(R*2+30)+'px';
+}
+calcR(); window.addEventListener('resize',calcR);
+
+function placeBase(){
+  var r=stick.getBoundingClientRect();
+  base.style.left=(cx-r.left)+'px'; base.style.top=(cy-r.top)+'px';
+}
+function flush(force){
+  var t='m:'+mx.toFixed(2)+','+my.toFixed(2);
+  var now=performance.now();
+  if(!force){
+    if(t===lastSent) return;
+    if(now-lastT<16) return;
+    if(ws&&ws.bufferedAmount>512) return; // tarmoq tiqilsa eski holatlarni yig'maymiz
+  }
+  lastT=now; lastSent=t; send(t);
+}
+function moveStick(x,y){
+  var dx=x-cx, dy=y-cy, d=Math.sqrt(dx*dx+dy*dy);
+  if(d>R){
+    var f=(d-R)/d; cx+=dx*f; cy+=dy*f; placeBase();
+    dx=x-cx; dy=y-cy; d=R;
+  }
+  knob.style.transform='translate('+dx+'px,'+dy+'px)';
+  var k=d/R;
+  if(k<DEAD){ mx=0; my=0; }
+  else { var s=Math.min(1,(k-DEAD)/(FULL-DEAD)); mx=dx/d*s; my=-dy/d*s; }
+  flush(false);
+}
+function resetStick(){
+  knob.style.transform='translate(0,0)'; mx=0; my=0;
+  base.style.left='30%'; base.style.top='72%';
+  base.classList.remove('act2'); $('stickLbl').style.opacity=.75;
+  flush(true);
+}
+stick.addEventListener('pointerdown',function(e){
+  if(stickId!==null) return;
+  e.preventDefault();
+  stickId=e.pointerId;
+  try{ stick.setPointerCapture(e.pointerId); }catch(x){}
+  cx=e.clientX; cy=e.clientY;
+  placeBase();
+  base.classList.add('act2'); $('stickLbl').style.opacity=0;
+  moveStick(e.clientX,e.clientY);
+  flush(true);
+},{passive:false});
+stick.addEventListener('pointermove',function(e){
+  if(e.pointerId!==stickId) return;
+  e.preventDefault();
+  moveStick(e.clientX,e.clientY);
+},{passive:false});
+function endStick(e){
+  if(e.pointerId!==stickId) return;
+  stickId=null; resetStick();
+}
+stick.addEventListener('pointerup',endStick);
+stick.addEventListener('pointercancel',endStick);
+stick.addEventListener('lostpointercapture',endStick);
+
+// Tugmalar: ZARB ('d') va OL / OT ('a')
+function button(el,msg){
+  var id=null;
+  el.addEventListener('pointerdown',function(e){
+    e.preventDefault();
+    if(id!==null) return;
+    id=e.pointerId;
+    try{ el.setPointerCapture(e.pointerId); }catch(x){}
+    el.classList.add('p'); send(msg);
+    try{navigator.vibrate&&navigator.vibrate(25);}catch(x){}
+  },{passive:false});
+  function rel(e){ if(e.pointerId!==id) return; id=null; el.classList.remove('p'); }
+  el.addEventListener('pointerup',rel);
+  el.addEventListener('pointercancel',rel);
+  el.addEventListener('lostpointercapture',rel);
+}
+button($('dash'),'d');
+button($('act'),'a');
+
+// Yurak urishi: joystik bosilib turganda holatni muntazam qayta yuboramiz.
+// Shunda o'yin barmoq hali shu yerda deb biladi, ulanish uzilsa esa qahramon to'xtaydi.
+setInterval(function(){
+  if(stickId!==null){ flush(true); }
+  else if(lastSent!=='m:0.00,0.00'){ flush(true); }
+},70);
+</script>
+</body>
+</html>
