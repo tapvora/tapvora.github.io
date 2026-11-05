@@ -1,0 +1,15 @@
+{
+    "advertisement": {
+        "minimumDelayBetweenInterstitial": 60,
+        "interstitial": {
+            "placements": [
+                { "id": "oyinlar_orasida" }
+            ]
+        },
+        "rewarded": {
+            "placements": [
+                { "id": "bonus_ochko" }
+            ]
+        }
+    }
+}

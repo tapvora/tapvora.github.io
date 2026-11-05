@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Silk Road Rumble</title>
+
+  <!-- ==================================================================
+       REKLAMA (daromad)
+
+       A) PLAYGAMA BRIDGE — ULANGAN, hech narsa qilish shart emas.
+          O'yin Playgama'ga (va u orqali boshqa portallarga) yuklanganda
+          interstitial va mukofotli reklama portalning o'zi orqali chiqadi.
+          Sozlama: shu papkadagi playgama-bridge-config.json.
+          O'z saytingizda / kompyuterda Bridge "mock" rejimida bo'ladi —
+          u yerda reklama uchun pastdagi Monetag ishlatiladi.
+
+       B) O'Z SAYTINGIZ (tapvora.github.io) — MONETAG DIRECT LINK: ULANGAN.
+          Mukofotli reklama: oyna chiqadi, reklama yangi tabda ochiladi, qaytganda bonus.
+          Havola pastdagi MONETAG_DIRECT_LINK qatorida (zona 12195927).
+          Faqat o'z saytingizda / localhost'da ishlaydi (portallarda emas).
+
+       2) ADSTERRA (banner / Social Bar): kodni pastdagi #ad-banner-bottom
+          ichiga va (ixtiyoriy) </body> oldiga qo'ying.
+       ================================================================== -->
+
+  <style>
+    html, body { margin: 0; height: 100%; background: #1a1612; overflow: hidden;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: #f1e6cf;
+      -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
+      overscroll-behavior: none; }
+    #page { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
+    #stage { flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center; }
+    #unity-container { position: relative; background: #231f20; }
+    #unity-canvas { width: 100%; height: 100%; display: block; background: #231f20; touch-action: none; outline: none; }
+
+    /* Yuklanish oynasi */
+    #loading { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center;
+      justify-content: center; gap: 14px; background: #231f20; z-index: 5; }
+    #loading h1 { margin: 0; font-size: clamp(22px, 5vw, 48px); letter-spacing: .04em; color: #e8b84a; text-align: center; padding: 0 12px; }
+    #bar { width: min(60%, 420px); height: 12px; border-radius: 6px; background: #3a332d; overflow: hidden; }
+    #fill { width: 0%; height: 100%; background: linear-gradient(90deg, #1fa7a0, #e8b84a); transition: width .15s; }
+    #loadtxt { font-size: 14px; opacity: .8; }
+    #err { display: none; color: #ff8a7a; padding: 0 16px; text-align: center; }
+
+    #fs { position: absolute; right: 8px; top: 8px; z-index: 6; width: 40px; height: 40px; border-radius: 8px;
+      border: 0; background: rgba(0,0,0,.45); color: #fff; font-size: 20px; cursor: pointer; opacity: 0; transition: opacity .2s; }
+    #unity-container:hover #fs { opacity: 1; }
+    @media (pointer: coarse) { #fs { display: none; } }
+
+    /* Banner o'yin ostida (o'yin tugmalarini yopmaydi). Bo'sh bo'lsa yashirin */
+    #ad-banner-bottom { flex: 0 0 auto; text-align: center; padding: 6px 0; background: #1a1612; max-height: 110px; overflow: hidden; }
+    #ad-banner-bottom:empty { display: none; }
+    @media (max-height: 520px) { #ad-banner-bottom { display: none; } }
+
+    /* Mukofotli reklama oynasi */
+    #rw { display: none; position: fixed; inset: 0; z-index: 25; background: rgba(0,0,0,.7);
+      align-items: center; justify-content: center; padding: 16px; }
+    .rw-card { background: #2b241e; border: 2px solid #e8b84a; border-radius: 16px; padding: 22px 24px;
+      max-width: 420px; width: 100%; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,.5); }
+    .rw-title { font-size: 26px; font-weight: 700; color: #e8b84a; margin-bottom: 10px; }
+    #rw-msg { font-size: 17px; line-height: 1.4; margin-bottom: 18px; }
+    .rw-btns { display: flex; flex-direction: column; gap: 10px; }
+    .rw-btns button { font: inherit; font-size: 17px; font-weight: 600; padding: 12px; border-radius: 10px;
+      border: 0; cursor: pointer; background: linear-gradient(90deg, #1fa7a0, #e8b84a); color: #1a1612; }
+    .rw-btns button:disabled { opacity: .45; cursor: default; }
+    .rw-btns .rw-sec { background: transparent; color: #f1e6cf; border: 1px solid #6b5d50; }
+
+    /* Telefon tik turgan bo'lsa — yotqizishni so'raymiz */
+    #rotate { display: none; position: fixed; inset: 0; z-index: 20; background: #231f20; color: #e8b84a;
+      align-items: center; justify-content: center; text-align: center; font-size: 22px; padding: 24px; }
+    @media (orientation: portrait) and (pointer: coarse) { #rotate { display: flex; } }
+  </style>
+</head>
+<body>
+  <div id="page">
+    <div id="stage">
+      <div id="unity-container">
+        <canvas id="unity-canvas" tabindex="-1"></canvas>
+        <button id="fs" title="To'liq ekran" aria-label="To'liq ekran">&#x26F6;</button>
+        <div id="loading">
+          <h1>Silk Road Rumble</h1>
+          <div id="bar"><div id="fill"></div></div>
+          <div id="loadtxt">Yuklanmoqda… 0%</div>
+          <div id="err"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADSTERRA banner kodini shu yerga qo'ying (o'zgartirmasdan). Bo'sh qolsa — ko'rinmaydi. -->
+    <div id="ad-banner-bottom"></div>
+  </div>
+
+  <pre id="dbg" style="display:none; position:fixed; left:0; top:0; right:0; max-height:45vh; overflow:auto; margin:0; padding:6px 8px; z-index:30; background:rgba(0,0,0,.75); color:#9fe; font:11px/1.35 monospace; white-space:pre-wrap; pointer-events:none;"></pre>
+  <script>if (location.search.indexOf('debug') >= 0) document.getElementById('dbg').style.display = 'block';</script>
+
+  <!-- Mukofotli reklama oynasi (Monetag Direct Link) -->
+  <div id="rw"><div class="rw-card">
+    <div class="rw-title">&#127873; Bonus</div>
+    <div id="rw-msg"></div>
+    <div class="rw-btns">
+      <button id="rw-go">Reklamani ochish &#9654;</button>
+      <button id="rw-claim">Bonusni olish</button>
+      <button id="rw-cancel" class="rw-sec">Bekor qilish</button>
+    </div>
+  </div></div>
+
+  <div id="rotate">Telefonni yoting (gorizontal) — o'yin shunday o'ynaladi</div>
+
+  <!-- Playgama Bridge SDK (portal reklamasi). Yuklanmasa ham o'yin ishlayveradi. -->
+  <script src="https://bridge.playgama.com/v2/stable/playgama-bridge.js"></script>
+  <script src="Build/Web.loader.js"></script>
+  <script>
+    var canvas = document.querySelector('#unity-canvas');
+    var stage = document.querySelector('#stage');
+    var cont = document.querySelector('#unity-container');
+
+    // Oyna o'lchamiga qarab 16:9 maydon
+    function layout() {
+      var r = stage.getBoundingClientRect();
+      var w = Math.min(r.width, r.height * 16 / 9);
+      cont.style.width = Math.floor(w) + 'px';
+      cont.style.height = Math.floor(w * 9 / 16) + 'px';
+    }
+    layout();
+    window.addEventListener('resize', layout);
+    if (window.ResizeObserver) new ResizeObserver(layout).observe(stage);
+
+    // Sahifa strelkalar/probel bilan siljib ketmasin; o'ng tugma menyusi chiqmasin
+    window.addEventListener('keydown', function (e) {
+      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' ', 'Tab'].indexOf(e.key) >= 0) e.preventDefault();
+    }, { passive: false });
+    document.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+    canvas.addEventListener('pointerdown', function () { canvas.focus(); });
+
+    var config = {
+      dataUrl: "Build/Web.data.unityweb",
+      frameworkUrl: "Build/Web.framework.js.unityweb",
+      codeUrl: "Build/Web.wasm.unityweb",
+      streamingAssetsUrl: "StreamingAssets",
+      companyName: "Tapvora Games",
+      productName: "Silk Road Rumble",
+      productVersion: "0.2.0",
+      devicePixelRatio: Math.min(window.devicePixelRatio || 1, 1.5)
+    };
+
+    // ----- Reklama ko'prigi (WebAds.jslib shuni chaqiradi) -----
+    function toUnity(method, value) {
+      try {
+        if (!window.unityInstance) return;
+        if (value === undefined) window.unityInstance.SendMessage('AdManager', method);
+        else window.unityInstance.SendMessage('AdManager', method, String(value));
+      } catch (e) {}
+    }
+
+    // 1) Playgama Bridge: portalda (platform.id 'mock' emas) reklamani portal ko'rsatadi
+    var pg = { ready: false, unityLoaded: false, gameReadySent: false, rewarded: null, interstitial: null };
+
+    function pgActive() {
+      return pg.ready && window.bridge && bridge.platform && bridge.platform.id !== 'mock';
+    }
+
+    function pgSendGameReady() {
+      if (pg.gameReadySent || !pg.ready || !pg.unityLoaded) return;
+      pg.gameReadySent = true;
+      try { bridge.platform.sendMessage('game_ready'); } catch (e) {}
+    }
+
+    if (window.bridge) {
+      bridge.initialize().then(function () {
+        pg.ready = true;
+        console.log('[SRR] Playgama Bridge tayyor, platforma: ' + bridge.platform.id);
+
+        // Mukofotli: 'rewarded' kelsa — mukofot; 'closed' / 'failed' — tugadi
+        bridge.advertisement.on(bridge.EVENT_NAME.REWARDED_STATE_CHANGED, function (state) {
+          var job = pg.rewarded;
+          if (!job) return;
+          if (state === 'opened') toUnity('OnWebAdOpened');
+          else if (state === 'rewarded') job.granted = true;
+          else if (state === 'closed' || state === 'failed') {
+            pg.rewarded = null;
+            if (job.granted) job.resolve(); else job.reject(state);
+          }
+        });
+
+        // Interstitial: 'closed' yoki 'failed' — o'yin davom etadi
+        bridge.advertisement.on(bridge.EVENT_NAME.INTERSTITIAL_STATE_CHANGED, function (state) {
+          var job = pg.interstitial;
+          if (!job) return;
+          if (state === 'loading' || state === 'opened') {
+            job.started = true;
+            if (state === 'opened') toUnity('OnWebAdOpened');
+          } else if (state === 'closed' || state === 'failed') {
+            pg.interstitial = null;
+            job.resolve();
+          }
+        });
+
+        // Portal pauza / ovozni o'chirsa — o'yin ovozi ham o'chadi
+        try {
+          bridge.platform.on(bridge.EVENT_NAME.PAUSE_STATE_CHANGED, function (isPaused) {
+            toUnity('OnWebPauseChanged', isPaused ? 1 : 0);
+          });
+          bridge.platform.on(bridge.EVENT_NAME.AUDIO_STATE_CHANGED, function (isEnabled) {
+            toUnity('OnWebPauseChanged', isEnabled ? 0 : 1);
+          });
+        } catch (e) {}
+
+        pgSendGameReady();
+      }).catch(function (e) {
+        console.warn('[SRR] Playgama Bridge ishga tushmadi', e);
+      });
+    }
+
+    // Brauzer tabi yashirilsa — ovoz o'chadi (portallar talabi)
+    document.addEventListener('visibilitychange', function () {
+      toUnity('OnWebPauseChanged', document.hidden ? 1 : 0);
+    });
+
+    // 2) Monetag DIRECT LINK — FAQAT o'z saytingizda (tapvora.github.io) va kompyuterda test (localhost).
+    //    "Reklama ko'ring" bosilganda oyna chiqadi → o'yinchi reklamani yangi tabda ochadi →
+    //    o'yinga qaytganda (kamida 5 soniyadan keyin) bonus beriladi.
+    var MONETAG_DIRECT_LINK = 'https://uplcm.com/4/12195927';
+    var OWN_SITE = /(^|\.)tapvora\.github\.io$/.test(location.hostname) ||
+                   location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+    var MIN_AWAY_MS = 5000;
+
+    if (MONETAG_DIRECT_LINK && OWN_SITE) {
+      window.monetagShowRewarded = function () {
+        return new Promise(function (resolve, reject) {
+          toUnity('OnWebAdOpened'); // o'yinchi qaror qilguncha "javob kelmadi" taymeri ishlamasin
+          var box = document.getElementById('rw');
+          var msg = document.getElementById('rw-msg');
+          var go = document.getElementById('rw-go');
+          var claim = document.getElementById('rw-claim');
+          var cancel = document.getElementById('rw-cancel');
+          var openedAt = 0, timer = null, done = false;
+
+          msg.textContent = "Reklamani ko'ring va keyingi o'yinga +3 bonus ochko oling!";
+          go.style.display = ''; claim.style.display = 'none'; claim.disabled = true;
+          box.style.display = 'flex';
+
+          function finish(ok) {
+            if (done) return; done = true;
+            box.style.display = 'none';
+            clearInterval(timer);
+            document.removeEventListener('visibilitychange', onVis);
+            if (ok) resolve(); else reject('cancel');
+          }
+          function ready() { return openedAt && Date.now() - openedAt >= MIN_AWAY_MS; }
+          function onVis() { if (!document.hidden && ready()) finish(true); }
+
+          go.onclick = function () {
+            var w = window.open(MONETAG_DIRECT_LINK, '_blank');
+            if (!w) { msg.textContent = "Brauzer yangi oynani to'sib qo'ydi. Ruxsat bering va qayta bosing."; return; }
+            try { w.opener = null; } catch (e) {}
+            openedAt = Date.now();
+            go.style.display = 'none'; claim.style.display = '';
+            document.addEventListener('visibilitychange', onVis);
+            timer = setInterval(function () {
+              var left = Math.ceil((MIN_AWAY_MS - (Date.now() - openedAt)) / 1000);
+              if (left > 0) { msg.textContent = 'Reklama yangi oynada ochildi… ' + left + ' s'; }
+              else { msg.textContent = "Rahmat! Bonusni oling."; claim.disabled = false; clearInterval(timer); }
+            }, 250);
+          };
+          claim.onclick = function () { if (ready()) finish(true); };
+          cancel.onclick = function () { finish(false); };
+        });
+      };
+      console.log('[SRR] Monetag Direct Link yoqildi');
+    }
+
+    function monetagRewarded() { return typeof window.monetagShowRewarded === 'function'; }
+    function monetagInterstitial() { return typeof window.monetagShowInterstitial === 'function'; }
+
+    window.srrAds = {
+      rewardedReady: function () {
+        if (pgActive()) return !!bridge.advertisement.isRewardedSupported && !pg.rewarded;
+        return monetagRewarded();
+      },
+      interstitialReady: function () {
+        if (pgActive()) return !!bridge.advertisement.isInterstitialSupported && !pg.interstitial;
+        return monetagInterstitial();
+      },
+      showRewarded: function () {
+        if (!pgActive()) return window.monetagShowRewarded();
+        return new Promise(function (resolve, reject) {
+          pg.rewarded = { granted: false, resolve: resolve, reject: reject };
+          try { bridge.advertisement.showRewarded('bonus_ochko'); }
+          catch (e) { pg.rewarded = null; reject(e); }
+        });
+      },
+      showInterstitial: function () {
+        if (!pgActive()) return window.monetagShowInterstitial();
+        return new Promise(function (resolve) {
+          var job = { started: false, resolve: resolve };
+          pg.interstitial = job;
+          try { bridge.advertisement.showInterstitial('oyinlar_orasida'); }
+          catch (e) { pg.interstitial = null; resolve(); return; }
+          // Portal reklamani bermasa (masalan vaqt chegarasi) — 3 soniyadan keyin o'yin davom etadi
+          setTimeout(function () {
+            if (pg.interstitial === job && !job.started) { pg.interstitial = null; resolve(); }
+          }, 3000);
+        });
+      }
+    };
+
+    var fill = document.querySelector('#fill');
+    var loadtxt = document.querySelector('#loadtxt');
+    var loading = document.querySelector('#loading');
+    var err = document.querySelector('#err');
+
+    createUnityInstance(canvas, config, function (p) {
+      fill.style.width = (p * 100) + '%';
+      loadtxt.textContent = 'Yuklanmoqda… ' + Math.round(p * 100) + '%';
+    }).then(function (unityInstance) {
+      window.unityInstance = unityInstance;
+      pg.unityLoaded = true;
+      pgSendGameReady();
+      loading.style.display = 'none';
+      canvas.focus();
+      document.querySelector('#fs').onclick = function () { unityInstance.SetFullscreen(1); };
+    }).catch(function (message) {
+      loadtxt.style.display = 'none';
+      err.style.display = 'block';
+      err.textContent = 'Yuklab bo\'lmadi: ' + message;
+      console.error(message);
+    });
+  </script>
+</body>
+</html>
