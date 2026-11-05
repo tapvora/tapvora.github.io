@@ -16,9 +16,10 @@
           O'z saytingizda / kompyuterda Bridge "mock" rejimida bo'ladi —
           u yerda reklama uchun pastdagi Monetag ishlatiladi.
 
-       B) O'Z SAYTINGIZ (tapvora.github.io) — MONETAG DIRECT LINK: ULANGAN.
-          Mukofotli reklama: oyna chiqadi, reklama yangi tabda ochiladi, qaytganda bonus.
-          Havola pastdagi MONETAG_DIRECT_LINK qatorida (zona 12195927).
+       B) O'Z SAYTINGIZ (tapvora.github.io) — ULANGAN:
+          Mukofotli: Monetag Direct Link (zona 12195927). Provayder to'sgan bo'lsa
+          avtomatik Tapvora Games o'z reklamasi (Astro Dodge) 5 soniya ko'rsatiladi.
+          O'yinlar orasida: o'z reklamamiz 5 soniya.
           Faqat o'z saytingizda / localhost'da ishlaydi (portallarda emas).
 
        2) ADSTERRA (banner / Social Bar): kodni pastdagi #ad-banner-bottom
@@ -65,6 +66,20 @@
     .rw-btns button { font: inherit; font-size: 17px; font-weight: 600; padding: 12px; border-radius: 10px;
       border: 0; cursor: pointer; background: linear-gradient(90deg, #1fa7a0, #e8b84a); color: #1a1612; }
     .rw-btns button:disabled { opacity: .45; cursor: default; }
+    #rw-house { display: none; margin: 0 0 14px; padding: 14px; border-radius: 12px;
+      background: linear-gradient(160deg, #0d1b3a, #24124a); border: 1px solid #4b3a7a; }
+    .hz-tag { font-size: 11px; letter-spacing: .12em; opacity: .7; }
+    .hz-sky { position: relative; height: 70px; overflow: hidden; }
+    .hz-rocket { position: absolute; left: 50%; top: 14px; font-size: 40px; transform: translateX(-50%) rotate(-45deg);
+      animation: hzBob 1.2s ease-in-out infinite; }
+    .hz-m { position: absolute; font-size: 22px; color: #ffb35c; animation: hzFall 1.6s linear infinite; }
+    .hz-m.m1 { left: 20%; } .hz-m.m2 { left: 75%; animation-delay: .8s; }
+    @keyframes hzBob { 50% { transform: translateX(-50%) translateY(-6px) rotate(-45deg); } }
+    @keyframes hzFall { from { top: -30px; } to { top: 80px; } }
+    .hz-name { font-size: 26px; font-weight: 800; color: #7fd7ff; letter-spacing: .06em; }
+    .hz-sub { font-size: 14px; opacity: .85; margin: 4px 0 10px; }
+    #rw-play { display: inline-block; padding: 6px 14px; border-radius: 8px; background: #7fd7ff; color: #0d1b3a;
+      font-weight: 700; text-decoration: none; font-size: 14px; }
     .rw-btns .rw-sec { background: transparent; color: #f1e6cf; border: 1px solid #6b5d50; }
 
     /* Telefon tik turgan bo'lsa — yotqizishni so'raymiz */
@@ -95,9 +110,16 @@
   <pre id="dbg" style="display:none; position:fixed; left:0; top:0; right:0; max-height:45vh; overflow:auto; margin:0; padding:6px 8px; z-index:30; background:rgba(0,0,0,.75); color:#9fe; font:11px/1.35 monospace; white-space:pre-wrap; pointer-events:none;"></pre>
   <script>if (location.search.indexOf('debug') >= 0) document.getElementById('dbg').style.display = 'block';</script>
 
-  <!-- Mukofotli reklama oynasi (Monetag Direct Link) -->
+  <!-- Reklama oynasi: Monetag Direct Link, ochilmasa — Tapvora Games o'z reklamasi -->
   <div id="rw"><div class="rw-card">
-    <div class="rw-title">&#127873; Bonus</div>
+    <div class="rw-title" id="rw-title">&#127873; Bonus</div>
+    <div id="rw-house">
+      <div class="hz-tag">REKLAMA &middot; TAPVORA GAMES</div>
+      <div class="hz-sky"><span class="hz-rocket">&#128640;</span><span class="hz-m m1">&#9732;</span><span class="hz-m m2">&#9732;</span></div>
+      <div class="hz-name">ASTRO DODGE</div>
+      <div class="hz-sub">Kosmosda meteorlardan qoching! Bepul, brauzerda.</div>
+      <a id="rw-play" href="https://tapvora.github.io/astrododge/" target="_blank" rel="noopener">O'ynash &#8599;</a>
+    </div>
     <div id="rw-msg"></div>
     <div class="rw-btns">
       <button id="rw-go">Reklamani ochish &#9654;</button>
@@ -218,32 +240,76 @@
       toUnity('OnWebPauseChanged', document.hidden ? 1 : 0);
     });
 
-    // 2) Monetag DIRECT LINK — FAQAT o'z saytingizda (tapvora.github.io) va kompyuterda test (localhost).
-    //    "Reklama ko'ring" bosilganda oyna chiqadi → o'yinchi reklamani yangi tabda ochadi →
-    //    o'yinga qaytganda (kamida 5 soniyadan keyin) bonus beriladi.
+    // 2) O'Z SAYTINGIZ (tapvora.github.io) va localhost:
+    //    Mukofotli: avval Monetag Direct Link tekshiriladi. Internet provayderi uni to'sgan
+    //    bo'lsa — Tapvora Games o'z reklamasi (Astro Dodge) 5 soniya ko'rsatiladi.
+    //    O'yinlar orasida: Tapvora Games reklamasi 5 soniya.
     var MONETAG_DIRECT_LINK = 'https://uplcm.com/4/12195927';
     var OWN_SITE = /(^|\.)tapvora\.github\.io$/.test(location.hostname) ||
                    location.hostname === 'localhost' || location.hostname === '127.0.0.1';
-    var MIN_AWAY_MS = 5000;
+    var MIN_AWAY_MS = 5000;     // Monetag tabida kamida shuncha
+    var HOUSE_AD_SEC = 5;       // o'z reklamamiz davomiyligi
 
-    if (MONETAG_DIRECT_LINK && OWN_SITE) {
+    // Monetag domeni ochiladimi? (to'silgan bo'lsa fetch xato beradi)
+    var monetagOk = null;
+    function probeMonetag() {
+      if (monetagOk !== null) return Promise.resolve(monetagOk);
+      return new Promise(function (res) {
+        var t = setTimeout(function () { monetagOk = false; res(false); }, 3500);
+        fetch(MONETAG_DIRECT_LINK, { mode: 'no-cors', cache: 'no-store', credentials: 'omit' })
+          .then(function () { clearTimeout(t); monetagOk = true; res(true); })
+          .catch(function () { clearTimeout(t); monetagOk = false; res(false); });
+      });
+    }
+    if (OWN_SITE && MONETAG_DIRECT_LINK) probeMonetag().then(function (ok) {
+      console.log('[SRR] Monetag ' + (ok ? 'ochiq' : "to'silgan — o'z reklamamiz ishlatiladi"));
+    });
+
+    function adBox(title) {
+      var el = {
+        box: document.getElementById('rw'), title: document.getElementById('rw-title'),
+        house: document.getElementById('rw-house'), msg: document.getElementById('rw-msg'),
+        go: document.getElementById('rw-go'), claim: document.getElementById('rw-claim'),
+        cancel: document.getElementById('rw-cancel')
+      };
+      el.title.innerHTML = title;
+      el.house.style.display = 'none';
+      el.go.style.display = 'none'; el.claim.style.display = 'none'; el.cancel.style.display = '';
+      el.claim.disabled = true; el.claim.textContent = 'Bonusni olish';
+      el.go.onclick = el.claim.onclick = el.cancel.onclick = null;
+      el.box.style.display = 'flex';
+      return el;
+    }
+
+    // O'z reklamamiz: taymer tugagach tugma yoqiladi
+    function runHouseAd(el, doneLabel, onTick) {
+      el.house.style.display = 'block';
+      el.go.style.display = 'none';
+      el.claim.style.display = ''; el.claim.disabled = true; el.claim.textContent = doneLabel;
+      var left = HOUSE_AD_SEC;
+      el.msg.textContent = 'Reklama… ' + left + ' s';
+      var timer = setInterval(function () {
+        left--;
+        if (left > 0) { el.msg.textContent = 'Reklama… ' + left + ' s'; return; }
+        clearInterval(timer);
+        el.msg.textContent = 'Rahmat!';
+        el.claim.disabled = false;
+      }, 1000);
+      return function stop() { clearInterval(timer); };
+    }
+
+    if (OWN_SITE) {
       window.monetagShowRewarded = function () {
         return new Promise(function (resolve, reject) {
           toUnity('OnWebAdOpened'); // o'yinchi qaror qilguncha "javob kelmadi" taymeri ishlamasin
-          var box = document.getElementById('rw');
-          var msg = document.getElementById('rw-msg');
-          var go = document.getElementById('rw-go');
-          var claim = document.getElementById('rw-claim');
-          var cancel = document.getElementById('rw-cancel');
-          var openedAt = 0, timer = null, done = false;
-
-          msg.textContent = "Reklamani ko'ring va keyingi o'yinga +3 bonus ochko oling!";
-          go.style.display = ''; claim.style.display = 'none'; claim.disabled = true;
-          box.style.display = 'flex';
+          var el = adBox('&#127873; Bonus');
+          var done = false, stopHouse = null, timer = null, openedAt = 0;
+          el.msg.textContent = 'Reklama yuklanmoqda…';
 
           function finish(ok) {
             if (done) return; done = true;
-            box.style.display = 'none';
+            el.box.style.display = 'none';
+            if (stopHouse) stopHouse();
             clearInterval(timer);
             document.removeEventListener('visibilitychange', onVis);
             if (ok) resolve(); else reject('cancel');
@@ -251,24 +317,49 @@
           function ready() { return openedAt && Date.now() - openedAt >= MIN_AWAY_MS; }
           function onVis() { if (!document.hidden && ready()) finish(true); }
 
-          go.onclick = function () {
-            var w = window.open(MONETAG_DIRECT_LINK, '_blank');
-            if (!w) { msg.textContent = "Brauzer yangi oynani to'sib qo'ydi. Ruxsat bering va qayta bosing."; return; }
-            try { w.opener = null; } catch (e) {}
-            openedAt = Date.now();
-            go.style.display = 'none'; claim.style.display = '';
-            document.addEventListener('visibilitychange', onVis);
-            timer = setInterval(function () {
-              var left = Math.ceil((MIN_AWAY_MS - (Date.now() - openedAt)) / 1000);
-              if (left > 0) { msg.textContent = 'Reklama yangi oynada ochildi… ' + left + ' s'; }
-              else { msg.textContent = "Rahmat! Bonusni oling."; claim.disabled = false; clearInterval(timer); }
-            }, 250);
-          };
-          claim.onclick = function () { if (ready()) finish(true); };
-          cancel.onclick = function () { finish(false); };
+          el.cancel.onclick = function () { finish(false); };
+          el.claim.onclick = function () { if (!el.claim.disabled) finish(true); };
+
+          function useHouse() {
+            stopHouse = runHouseAd(el, "Bonusni olish (+3)");
+          }
+
+          probeMonetag().then(function (ok) {
+            if (done) return;
+            if (!ok) { useHouse(); return; }
+            el.msg.textContent = "Reklamani ko'ring va keyingi o'yinga +3 bonus ochko oling!";
+            el.go.style.display = '';
+            el.go.onclick = function () {
+              var w = window.open(MONETAG_DIRECT_LINK, '_blank');
+              if (!w) { useHouse(); return; } // oyna to'silsa — o'z reklamamiz
+              try { w.opener = null; } catch (e) {}
+              openedAt = Date.now();
+              el.go.style.display = 'none'; el.claim.style.display = '';
+              document.addEventListener('visibilitychange', onVis);
+              timer = setInterval(function () {
+                var left = Math.ceil((MIN_AWAY_MS - (Date.now() - openedAt)) / 1000);
+                if (left > 0) { el.msg.textContent = 'Reklama yangi oynada ochildi… ' + left + ' s'; }
+                else { el.msg.textContent = 'Rahmat! Bonusni oling.'; el.claim.disabled = false; clearInterval(timer); }
+              }, 250);
+            };
+          });
         });
       };
-      console.log('[SRR] Monetag Direct Link yoqildi');
+
+      // O'yinlar orasida: o'z reklamamiz, 5 soniya
+      window.monetagShowInterstitial = function () {
+        return new Promise(function (resolve) {
+          toUnity('OnWebAdOpened');
+          var el = adBox('Reklama');
+          el.cancel.style.display = 'none';
+          var stop = runHouseAd(el, "Davom etish &#9654;".replace('&#9654;', '▶'));
+          el.claim.onclick = function () {
+            if (el.claim.disabled) return;
+            stop(); el.box.style.display = 'none'; resolve();
+          };
+        });
+      };
+      console.log("[SRR] O'z saytidagi reklama yoqildi");
     }
 
     function monetagRewarded() { return typeof window.monetagShowRewarded === 'function'; }
