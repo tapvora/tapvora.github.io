@@ -162,10 +162,28 @@
        Banner faqat menyuda ko'rinadi.                                        -->
 
   <!-- 1) Adsterra: Banner 728x90 (kompyuter uchun) -->
-  <template id="kod-adsterra-pc"></template>
+  <template id="kod-adsterra-pc"><script>
+  atOptions = {
+    'key' : 'fc2e388282464c7c6d41c2e897c52f88',
+    'format' : 'iframe',
+    'height' : 90,
+    'width' : 728,
+    'params' : {}
+  };
+</script>
+<script src="https://bauval.org/22/fc2e388282464c7c6d41c2e897c52f88"></script></template>
 
   <!-- 2) Adsterra: Banner 320x50 (telefon uchun) -->
-  <template id="kod-adsterra-telefon"></template>
+  <template id="kod-adsterra-telefon"><script>
+  atOptions = {
+    'key' : '96c58bd3b1d006f7de6de8b5dbfec296',
+    'format' : 'iframe',
+    'height' : 50,
+    'width' : 320,
+    'params' : {}
+  };
+</script>
+<script src="https://bauval.org/22/96c58bd3b1d006f7de6de8b5dbfec296"></script></template>
 
   <!-- 3) Monetag: In-Page Push (Astro Dodge saytidagi bilan bir xil kod) -->
   <template id="kod-monetag-inpage"><script>(function(s){s.dataset.zone='12159717',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script></template>
@@ -218,6 +236,87 @@
       } catch (e) {}
     }
 
+    // 0) GAMEMONETIZE: o'yin gamemonetize.com da ochilganda (yoki GameMonetize build'ida,
+    //    yoki test uchun manzil oxirida ?gm bo'lsa) reklamani GameMonetize SDK ko'rsatadi.
+    //    Bu rejimda Playgama, Monetag, Adsterra va o'z reklamamiz ishlamaydi (portal qoidasi).
+    var GM_GAME_ID = 'om2fro36n3nbef9euz1wbp8dknj6fzpb';
+    var GM_MODE = window.SRR_PORTAL === 'gamemonetize' ||
+                  /(^|\.)gamemonetize\.(com|co)$/.test(location.hostname) ||
+                  /[?&]gm(=|&|$)/.test(location.search);
+    var gm = { ready: false, unityLoaded: false, job: null, prerollDone: false, waitUntil: 0 };
+    var GM_GAP_AFTER_AD = 60000;   // reklama ko'rsatilgach — keyingisigacha (GameMonetize tez-tez bermaydi)
+    var GM_GAP_AFTER_FAIL = 20000; // reklama kelmasa — biroz kutib qayta urinamiz
+
+    function gmActive() {
+      return GM_MODE && gm.ready && typeof window.sdk !== 'undefined' && typeof sdk.showBanner === 'function';
+    }
+
+    // Tanaffus tugadimi ("Reklama ko'ring" tugmasi faqat shunda ko'rinadi)
+    function gmCanShow() { return gmActive() && !gm.job && Date.now() >= gm.waitUntil; }
+
+    // Reklama so'raladi. Natija: true — reklama haqiqatan ko'rsatildi, false — ko'rsatilmadi.
+    function gmShowAd() {
+      return new Promise(function (resolve) {
+        if (!gmActive() || gm.job) { resolve(false); return; }
+        var job = { shown: false, resolve: resolve, at: Date.now() };
+        gm.job = job;
+        try { sdk.showBanner(); } catch (e) { gm.job = null; resolve(false); return; }
+        // 12 soniyada reklama boshlanmasa (reklama yo'q) — o'yin davom etadi
+        setTimeout(function () {
+          if (gm.job === job && !job.shown) { gm.job = null; gm.waitUntil = Date.now() + GM_GAP_AFTER_FAIL; resolve(false); }
+        }, 12000);
+      });
+    }
+
+    // O'yin ochilganda bitta reklama (GameMonetize o'yinlarida odatiy; tekshiruv uchun ham kerak)
+    function gmPreroll() {
+      if (gm.prerollDone || !gm.ready || !gm.unityLoaded) return;
+      gm.prerollDone = true;
+      gmShowAd();
+    }
+
+    if (GM_MODE) {
+      window.SDK_OPTIONS = {
+        gameId: GM_GAME_ID,
+        onEvent: function (a) {
+          switch (a.name) {
+            case 'SDK_GAME_PAUSE': // reklama boshlandi — o'yin ovozi o'chadi
+              console.log('[SRR] GM: SDK_GAME_PAUSE');
+              if (gm.job) gm.job.shown = true;
+              toUnity('OnWebAdOpened');
+              toUnity('OnWebPauseChanged', 1);
+              break;
+            case 'SDK_GAME_START': // reklama tugadi — o'yin davom etadi
+              toUnity('OnWebPauseChanged', 0);
+              console.log('[SRR] GM: SDK_GAME_START');
+              if (gm.job) {
+                var j = gm.job; gm.job = null;
+                // Ba'zan SDK PAUSE xabarini yubormaydi — reklama 3 soniyadan uzoq davom etgan bo'lsa, ko'rsatilgan deb hisoblaymiz
+                if (!j.shown && Date.now() - j.at > 3000) j.shown = true;
+                console.log('[SRR] GM: reklama ' + (j.shown ? "ko'rsatildi" : "kelmadi"));
+                gm.waitUntil = Date.now() + (j.shown ? GM_GAP_AFTER_AD : GM_GAP_AFTER_FAIL);
+                j.resolve(j.shown);
+              }
+              break;
+            case 'SDK_READY':
+              gm.ready = true;
+              console.log('[SRR] GameMonetize SDK tayyor');
+              gmPreroll();
+              break;
+          }
+        }
+      };
+      (function (d, s, id) {
+        var f = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        var js = d.createElement(s); js.id = id;
+        js.src = 'https://api.gamemonetize.com/sdk.js';
+        f.parentNode.insertBefore(js, f);
+      })(document, 'script', 'gamemonetize-sdk');
+      window.SRR_PORTAL = 'gamemonetize'; // WebPhone.jslib telefon-pultni o'chiradi
+      console.log('[SRR] GameMonetize rejimi');
+    }
+
     // 1) Playgama Bridge: portalda (platform.id 'mock' emas) reklamani portal ko'rsatadi
     var pg = { ready: false, unityLoaded: false, gameReadySent: false, rewarded: null, interstitial: null };
 
@@ -231,7 +330,7 @@
       try { bridge.platform.sendMessage('game_ready'); } catch (e) {}
     }
 
-    if (window.bridge) {
+    if (window.bridge && !GM_MODE) {
       bridge.initialize().then(function () {
         pg.ready = true;
         console.log('[SRR] Playgama Bridge tayyor, platforma: ' + bridge.platform.id);
@@ -288,8 +387,8 @@
     //    bo'lsa — Tapvora Games o'z reklamasi (Astro Dodge) 5 soniya ko'rsatiladi.
     //    O'yinlar orasida: Tapvora Games reklamasi 5 soniya.
     var MONETAG_DIRECT_LINK = 'https://uplcm.com/4/12195927';
-    var OWN_SITE = /(^|\.)tapvora\.github\.io$/.test(location.hostname) ||
-                   location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+    var OWN_SITE = !GM_MODE && (/(^|\.)tapvora\.github\.io$/.test(location.hostname) ||
+                   location.hostname === 'localhost' || location.hostname === '127.0.0.1');
     var MIN_AWAY_MS = 5000;     // Monetag tabida kamida shuncha
     var HOUSE_AD_SEC = 5;       // o'z reklamamiz davomiyligi
 
@@ -410,14 +509,19 @@
 
     window.srrAds = {
       rewardedReady: function () {
+        // GameMonetize: tanaffusdan keyin (reklama kelmasa — 20 s, ko'rsatilsa — 60 s)
+        if (GM_MODE) return gmCanShow();
         if (pgActive()) return !!bridge.advertisement.isRewardedSupported && !pg.rewarded;
         return monetagRewarded();
       },
       interstitialReady: function () {
+        if (GM_MODE) return gmCanShow();
         if (pgActive()) return !!bridge.advertisement.isInterstitialSupported && !pg.interstitial;
         return monetagInterstitial();
       },
       showRewarded: function () {
+        // GameMonetize: reklama oxirigacha ko'rsatilsa — bonus beriladi
+        if (GM_MODE) return gmShowAd().then(function (shown) { if (!shown) throw 'no_ad'; });
         if (!pgActive()) return window.monetagShowRewarded();
         return new Promise(function (resolve, reject) {
           pg.rewarded = { granted: false, resolve: resolve, reject: reject };
@@ -426,6 +530,7 @@
         });
       },
       showInterstitial: function () {
+        if (GM_MODE) return gmShowAd();
         if (!pgActive()) return window.monetagShowInterstitial();
         return new Promise(function (resolve) {
           var job = { started: false, resolve: resolve };
@@ -562,6 +667,8 @@
       window.unityInstance = unityInstance;
       pg.unityLoaded = true;
       pgSendGameReady();
+      gm.unityLoaded = true;
+      gmPreroll();
       loading.style.display = 'none';
       canvas.focus();
       document.querySelector('#fs').onclick = function () { goFullscreen(false); };
