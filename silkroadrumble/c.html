@@ -61,7 +61,7 @@ button.big{margin-top:18px;width:100%;max-width:320px;font-size:24px;font-weight
 <!-- Ekran o'chmasin: ko'rinmas, ovozsiz, aylanib turuvchi kichik video (NoSleep usuli) -->
 <video id='ns' muted playsinline loop style='position:absolute;width:1px;height:1px;opacity:0;pointer-events:none'><source src='data:video/webm;base64,GkXfo59ChoEBQveBAULygQRC84EIQoKEd2VibUKHgQJChYECGFOAZwEAAAAAAAH9EU2bdLpNu4tTq4QVSalmU6yBoU27i1OrhBZUrmtTrIHYTbuMU6uEElTDZ1OsggEeTbuMU6uEHFO7a1OsggHn7AEAAAAAAABZAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAVSalmsirXsYMPQkBNgI1MYXZmNjAuMTYuMTAwV0GNTGF2ZjYwLjE2LjEwMESJiECfQAAAAAAAFlSua8GuAQAAAAAAADjXgQFzxYhvLmVVhuiZOJyBACK1nIN1bmSIgQCGhVZfVlA4g4EBI+ODhDuaygDgibCBELqBEJqBAhJUw2f8c3OgY8CAZ8iaRaOHRU5DT0RFUkSHjUxhdmY2MC4xNi4xMDBzc9ZjwItjxYhvLmVVhuiZOGfIoUWjh0VOQ09ERVJEh5RMYXZjNjAuMzEuMTAyIGxpYnZweGfIoUWjiERVUkFUSU9ORIeTMDA6MDA6MDIuMDAwMDAwMDAwAB9DtnXD54EAo6OBAACAEAIAnQEqEAAQAABHCIWFiJmEiAICAAwNYAD+/6tQgKOZgQPoALEBAAEQEAAYADA/9AwAAAD+/6tQgBxTu2uRu4+zgQC3iveBAfGCAZ/wgQM=' type='video/webm'><source src='data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAMpbW9vdgAAAGxtdmhkAAAAAAAAAAAAAAAAAAAD6AAAB9AAAQAAAQAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAlN0cmFrAAAAXHRraGQAAAADAAAAAAAAAAAAAAABAAAAAAAAB9AAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAABAAAAAQAAAAAAAkZWR0cwAAABxlbHN0AAAAAAAAAAEAAAfQAAAAAAABAAAAAAHLbWRpYQAAACBtZGhkAAAAAAAAAAAAAAAAAABAAAAAgABVxAAAAAAALWhkbHIAAAAAAAAAAHZpZGUAAAAAAAAAAAAAAABWaWRlb0hhbmRsZXIAAAABdm1pbmYAAAAUdm1oZAAAAAEAAAAAAAAAAAAAACRkaW5mAAAAHGRyZWYAAAAAAAAAAQAAAAx1cmwgAAAAAQAAATZzdGJsAAAAtnN0c2QAAAAAAAAAAQAAAKZhdmMxAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAABAAEABIAAAASAAAAAAAAAABFUxhdmM2MC4zMS4xMDIgbGlieDI2NAAAAAAAAAAAAAAAGP//AAAALGF2Y0MBQsAK/+EAFWdCwAraewEQAAADABAAAAMAIPEiagEABGjOD8gAAAAQcGFzcAAAAAEAAAABAAAAFGJ0cnQAAAAAAAAKOAAACjgAAAAYc3R0cwAAAAAAAAABAAAAAgAAQAAAAAAUc3RzcwAAAAAAAAABAAAAAQAAABxzdHNjAAAAAAAAAAEAAAABAAAAAgAAAAEAAAAcc3RzegAAAAAAAAAAAAAAAgAAAoUAAAAJAAAAFHN0Y28AAAAAAAAAAQAAA1kAAABidWR0YQAAAFptZXRhAAAAAAAAACFoZGxyAAAAAAAAAABtZGlyYXBwbAAAAAAAAAAAAAAAAC1pbHN0AAAAJal0b28AAAAdZGF0YQAAAAEAAAAATGF2ZjYwLjE2LjEwMAAAAAhmcmVlAAAClm1kYXQAAAJvBgX//2vcRem95tlIt5Ys2CDZI+7veDI2NCAtIGNvcmUgMTY0IHIzMTA4IDMxZTE5ZjkgLSBILjI2NC9NUEVHLTQgQVZDIGNvZGVjIC0gQ29weWxlZnQgMjAwMy0yMDIzIC0gaHR0cDovL3d3dy52aWRlb2xhbi5vcmcveDI2NC5odG1sIC0gb3B0aW9uczogY2FiYWM9MCByZWY9MSBkZWJsb2NrPTE6MDowIGFuYWx5c2U9MHgxOjB4MTExIG1lPWhleCBzdWJtZT0yIHBzeT0xIHBzeV9yZD0xLjAwOjAuMDAgbWl4ZWRfcmVmPTAgbWVfcmFuZ2U9MTYgY2hyb21hX21lPTEgdHJlbGxpcz0wIDh4OGRjdD0wIGNxbT0wIGRlYWR6b25lPTIxLDExIGZhc3RfcHNraXA9MSBjaHJvbWFfcXBfb2Zmc2V0PTAgdGhyZWFkcz0xIGxvb2thaGVhZF90aHJlYWRzPTEgc2xpY2VkX3RocmVhZHM9MCBucj0wIGRlY2ltYXRlPTEgaW50ZXJsYWNlZD0wIGJsdXJheV9jb21wYXQ9MCBjb25zdHJhaW5lZF9pbnRyYT0wIGJmcmFtZXM9MCB3ZWlnaHRwPTAga2V5aW50PTI1MCBrZXlpbnRfbWluPTEgc2NlbmVjdXQ9NDAgaW50cmFfcmVmcmVzaD0wIHJjX2xvb2thaGVhZD0xMCByYz1jcmYgbWJ0cmVlPTEgY3JmPTIzLjAgcWNvbXA9MC42MCBxcG1pbj0wIHFwbWF4PTY5IHFwc3RlcD00IGlwX3JhdGlvPTEuNDAgYXE9MToxLjAwAIAAAAAOZYiEBb///w9FAAFPf4AAAAAFQZogFfU=' type='video/mp4'></video>
 <script>
-var VER=5;
+var VER=6;
 var ws=null, name='', mx=0, my=0, lastSent='', stickId=null;
 var $=function(id){return document.getElementById(id)};
 var did='';
@@ -93,34 +93,59 @@ function checkVer(){
     var m=t.match(/var VER=(\d+);/); if(m&&parseInt(m[1],10)!==VER) location.reload();
   }).catch(function(){}); }catch(e){}
 }
-// Onlayn rejim: QR manzilida ?r=XONA bor (brauzer versiyasi, PeerJS orqali)
+// Onlayn rejim: QR manzilida ?r=XONA bor (brauzer versiyasi).
+// Ulanish ommaviy MQTT serveri orqali (b= qaysi server — o'yin o'zi tanlaydi).
 var ROOM=((location.search.match(/[?&]r=([A-Za-z0-9]+)/)||[])[1]||'').toUpperCase();
-function loadPeer(cb){
-  if(window.Peer) return cb();
-  var sc=document.createElement('script'); sc.src='https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js';
+var BRK=parseInt((location.search.match(/[?&]b=(\d)/)||[])[1]||'0',10);
+var BROKERS=['wss://broker.emqx.io:8084/mqtt','wss://broker.hivemq.com:8884/mqtt','wss://test.mosquitto.org:8081/mqtt'];
+function loadMqtt(cb){
+  if(window.mqtt) return cb();
+  var sc=document.createElement('script'); sc.src='https://unpkg.com/mqtt@5/dist/mqtt.min.js';
   sc.onload=function(){cb();}; sc.onerror=function(){cb('yuklanmadi');}; document.head.appendChild(sc);
 }
 // WebSocket bilan bir xil ko'rinishdagi obyekt: send, readyState, bufferedAmount, onopen/onclose/onmessage
 function peerLink(room){
-  var L={readyState:0,why:'',c:null,p:null,
-    get bufferedAmount(){ try{ return L.c.dataChannel.bufferedAmount||0; }catch(e){ return 0; } },
-    send:function(t){ if(L.c&&L.readyState===1) L.c.send(t); }};
+  var base='tapvora/srr2/'+room, cid='p'+Math.random().toString(36).substring(2,10);
+  var up=base+'/up/'+cid, down=base+'/down/'+cid;
+  var L={readyState:0,why:'',cl:null,lastPub:0,lastPong:0,tick:null,
+    // Server tiqilib qolmasin: soniyasiga ~16 tadan ko'p harakat yubormaymiz
+    get bufferedAmount(){ return (performance.now()-L.lastPub<60)?1000:0; },
+    send:function(t){ if(L.cl&&L.readyState===1){ L.lastPub=performance.now(); try{ L.cl.publish(up,t); }catch(e){} } }};
   function fail(){
     if(L.readyState===3) return; L.readyState=3;
-    try{ L.c&&L.c.close(); }catch(e){} try{ L.p&&L.p.destroy(); }catch(e){}
+    clearInterval(L.tick);
+    try{ if(L.cl){ L.cl.publish(up,'__bye'); L.cl.end(true); } }catch(e){}
     if(L.onclose) L.onclose();
   }
-  loadPeer(function(err){
+  loadMqtt(function(err){
     if(err){ L.why='Internet sekin — qayta urinilmoqda'; return fail(); }
-    var p=new Peer({debug:0}); L.p=p;
-    p.on('open',function(){
-      var c=p.connect('tapvora-srr-'+room,{serialization:'raw',reliable:true}); L.c=c;
-      c.on('open',function(){ L.readyState=1; if(L.onopen) L.onopen(); });
-      c.on('data',function(d){ if(L.onmessage) L.onmessage({data:String(d)}); });
-      c.on('close',fail); c.on('error',fail);
+    var url=BROKERS[BRK]||BROKERS[0];
+    var cl; try{ cl=mqtt.connect(url,{clientId:cid,connectTimeout:10000,reconnectPeriod:0,clean:true,
+      will:{topic:up,payload:'__bye',qos:0,retain:false}}); }catch(e){ L.why='Ulanib bo\'lmadi'; return fail(); }
+    L.cl=cl;
+    cl.on('connect',function(){
+      cl.subscribe(down,{qos:0},function(){
+        try{ cl.publish(up,'__hi'); }catch(e){}
+        L.readyState=1; L.lastPong=Date.now();
+        if(L.onopen) L.onopen();
+        // Yurak urishi: o'yin 12 soniya javob bermasa — qayta ulanamiz
+        L.tick=setInterval(function(){
+          try{ cl.publish(up,'__p'); }catch(e){}
+          if(Date.now()-L.lastPong>12000){ L.why='O\'yin javob bermayapti — QR kodni qayta skanerlang'; fail(); }
+        },4000);
+      });
     });
-    p.on('error',function(e){ if(e&&e.type==='peer-unavailable') L.why='O\'yin topilmadi — ekrandagi QR kodni qayta skanerlang'; fail(); });
-    setTimeout(function(){ if(L.readyState===0) fail(); },15000);
+    cl.on('message',function(topic,msg){
+      var d=String(msg);
+      if(d==='__p'){ L.lastPong=Date.now(); return; }
+      L.lastPong=Date.now();
+      if(d==='__who'){ if(L.onopen) L.onopen(); return; } // o'yin qayta ochilgan — yana kiramiz
+      if(d==='__bye'){ fail(); return; }
+      if(L.onmessage) L.onmessage({data:d});
+    });
+    cl.on('error',function(){ fail(); });
+    cl.on('close',function(){ fail(); });
+    setTimeout(function(){ if(L.readyState===0){ L.why='Internet sekin — qayta urinilmoqda'; fail(); } },15000);
   });
   return L;
 }
