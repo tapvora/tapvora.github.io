@@ -22,9 +22,16 @@
           O'yinlar orasida: o'z reklamamiz 5 soniya.
           Faqat o'z saytingizda / localhost'da ishlaydi (portallarda emas).
 
-       2) ADSTERRA (banner / Social Bar): kodni pastdagi #ad-banner-bottom
-          ichiga va (ixtiyoriy) </body> oldiga qo'ying.
+       C) BANNER (daromad) — sahifa pastidagi "BANNER KODLARI" bo'limida
+          3 ta <template> bor: Adsterra 728x90, Adsterra 320x50, Monetag In-Page Push.
+          Bo'sh qolsa — o'rniga Tapvora Games banneri (Astro Dodge) chiqadi.
+          Banner faqat MENYUDA ko'rinadi, o'yin paytida yashiriladi.
        ================================================================== -->
+  <meta name="description" content="Silk Road Rumble — Ipak yo'lidagi to'polon. Telefonni pult qilib, do'stlar bilan bitta ekranda o'ynaladigan o'zbekcha party o'yin. Tapvora Games.">
+  <meta property="og:title" content="Silk Road Rumble — Tapvora Games">
+  <meta property="og:description" content="Telefon — pult, kompyuter — maydon. Ko'pkari, Registon kurashi, Tilla karvon va Dev jangi!">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#1a1612">
 
   <style>
     html, body { margin: 0; height: 100%; background: #1a1612; overflow: hidden;
@@ -53,6 +60,7 @@
     /* Banner o'yin ostida (o'yin tugmalarini yopmaydi). Bo'sh bo'lsa yashirin */
     #ad-banner-bottom { flex: 0 0 auto; text-align: center; padding: 6px 0; background: #1a1612; max-height: 110px; overflow: hidden; }
     #ad-banner-bottom:empty { display: none; }
+    #ad-banner-bottom iframe { border: 0; display: block; margin: 0 auto; max-width: 100%; }
     .hb { display: inline-flex; align-items: center; gap: 10px; padding: 8px 16px; border-radius: 10px; max-width: 94%;
       background: linear-gradient(90deg, #0d1b3a, #24124a); border: 1px solid #4b3a7a; color: #e6efff;
       text-decoration: none; font-size: 15px; }
@@ -116,7 +124,7 @@
       </div>
     </div>
 
-    <!-- ADSTERRA banner kodini shu yerga qo'ying (o'zgartirmasdan). Bo'sh qolsa — ko'rinmaydi. -->
+    <!-- Banner joyi (menyuda). Kodlar pastdagi "BANNER KODLARI" bo'limida. -->
     <div id="ad-banner-bottom"></div>
   </div>
 
@@ -147,6 +155,22 @@
     <button id="rot-play">&#9654; To'liq ekranda o'ynash</button>
     <button id="rot-skip">Shunday davom etish</button>
   </div>
+
+  <!-- ===================== BANNER KODLARI (o'z saytda) =====================
+       Kodlarni <template ...> va </template> ORASIGA butunligicha qo'ying.
+       Bo'sh qolsa — o'rniga Tapvora Games banneri (Astro Dodge) chiqadi.
+       Banner faqat menyuda ko'rinadi.                                        -->
+
+  <!-- 1) Adsterra: Banner 728x90 (kompyuter uchun) -->
+  <template id="kod-adsterra-pc"></template>
+
+  <!-- 2) Adsterra: Banner 320x50 (telefon uchun) -->
+  <template id="kod-adsterra-telefon"></template>
+
+  <!-- 3) Monetag: In-Page Push (Astro Dodge saytidagi bilan bir xil kod) -->
+  <template id="kod-monetag-inpage"><script>(function(s){s.dataset.zone='12159717',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script></template>
+
+  <!-- ======================================================================= -->
 
   <!-- Playgama Bridge SDK (portal reklamasi). Yuklanmasa ham o'yin ishlayveradi. -->
   <script src="https://bridge.playgama.com/v2/stable/playgama-bridge.js"></script>
@@ -416,6 +440,48 @@
       }
     };
 
+    // Banner kodlari sahifa pastidagi <template> bloklaridan o'qiladi
+    function codeOf(id) { var t = document.getElementById(id); return t ? t.innerHTML.trim() : ''; }
+    var ADSTERRA_BANNER_PC = codeOf('kod-adsterra-pc');
+    var ADSTERRA_BANNER_PHONE = codeOf('kod-adsterra-telefon');
+    var MONETAG_INPAGE = codeOf('kod-monetag-inpage');
+
+    // Kod ichidagi <script> larni haqiqatan ishga tushiradi (innerHTML ishlatmaydi)
+    function injectSnippet(html, target) {
+      try {
+        var doc = new DOMParser().parseFromString(html, 'text/html');
+        doc.querySelectorAll('script').forEach(function (old) {
+          var s = document.createElement('script');
+          for (var i = 0; i < old.attributes.length; i++) s.setAttribute(old.attributes[i].name, old.attributes[i].value);
+          if (old.textContent) s.textContent = old.textContent;
+          s.async = true;
+          (target || document.body).appendChild(s);
+        });
+      } catch (e) { console.warn('[SRR] reklama kodi', e); }
+    }
+
+    var inpageLoaded = false;
+    function loadInPage() {
+      if (inpageLoaded || !OWN_SITE || !MONETAG_INPAGE.trim()) return;
+      inpageLoaded = true;
+      injectSnippet(MONETAG_INPAGE, document.body);
+      console.log('[SRR] Monetag In-Page Push yuklandi');
+    }
+
+    // Adsterra banneri alohida iframe ichida (uning kodi document.write ishlatadi —
+    // sahifaning o'zida ishlatilsa o'yin o'chib ketardi)
+    function realBannerHtml() {
+      var phone = window.innerWidth < 760;
+      var code = (phone ? ADSTERRA_BANNER_PHONE : ADSTERRA_BANNER_PC) || ADSTERRA_BANNER_PHONE || ADSTERRA_BANNER_PC;
+      if (!code.trim()) return '';
+      var useSmall = phone || !ADSTERRA_BANNER_PC.trim();
+      var w = useSmall ? 320 : 728, h = useSmall ? 50 : 90;
+      var f = document.createElement('iframe');
+      f.width = w; f.height = h; f.scrolling = 'no'; f.title = 'Reklama';
+      f.setAttribute('srcdoc', '<!DOCTYPE html><html><head><base target="_blank"><style>html,body{margin:0;overflow:hidden;background:transparent}</style></head><body>' + code + '</body></html>');
+      return f;
+    }
+
     // ----- BANNER (faqat menyuda; Unity MenuScreen chaqiradi) -----
     var bannerWanted = false, bannerShown = false;
     function applyBanner() {
@@ -430,8 +496,26 @@
         return;
       }
       if (!OWN_SITE) return;
-      // O'z saytda: Tapvora Games banneri o'yin ostida
+      // O'z saytda: haqiqiy banner (Adsterra), bo'lmasa — Tapvora Games banneri
       var slot = document.getElementById('ad-banner-bottom');
+      if (bannerWanted) loadInPage();
+      var real = (bannerWanted && !bannerShown) ? realBannerHtml() : '';
+      if (real) {
+        slot.innerHTML = ''; slot.appendChild(real); bannerShown = true;
+        // Provayder to'sgan bo'lsa (6 s ichida yuklanmasa) — o'z bannerimizga o'tamiz
+        setTimeout(function () {
+          if (!bannerShown || !slot.contains(real)) return;
+          var filled = false;
+          try { filled = !!real.contentDocument.querySelector('iframe, img, a, ins, video'); } catch (e) { filled = true; }
+          if (!filled) { slot.innerHTML = ''; bannerShown = false; showHouseBanner(slot); }
+        }, 6000);
+      } else if (bannerWanted && !bannerShown) {
+        showHouseBanner(slot);
+      } else if (!bannerWanted && bannerShown) {
+        slot.innerHTML = ''; bannerShown = false;
+      }
+    }
+    function showHouseBanner(slot) {
       if (bannerWanted && !bannerShown) {
         slot.innerHTML = '<a class="hb" href="https://tapvora.github.io/astrododge/" target="_blank" rel="noopener">' +
           '<span class="hb-tag">REKLAMA</span> &#128640; <b>ASTRO DODGE</b> — kosmosda meteorlardan qoching! <span class="hb-go">O\'ynash &#8599;</span></a>';
