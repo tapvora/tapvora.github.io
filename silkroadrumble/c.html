@@ -107,13 +107,28 @@ function loadMqtt(cb){
 function peerLink(room){
   var base='tapvora/srr2/'+room, cid='p'+Math.random().toString(36).substring(2,10);
   var up=base+'/up/'+cid, down=base+'/down/'+cid;
-  var L={readyState:0,why:'',cl:null,lastPub:0,lastPong:0,tick:null,
-    // Server tiqilib qolmasin: soniyasiga ~16 tadan ko'p harakat yubormaymiz
-    get bufferedAmount(){ return (performance.now()-L.lastPub<60)?1000:0; },
-    send:function(t){ if(L.cl&&L.readyState===1){ L.lastPub=performance.now(); try{ L.cl.publish(up,t); }catch(e){} } }};
+  var L={readyState:0,why:'',cl:null,lastMove:0,pendMove:'',moveTimer:null,lastPong:0,tick:null,
+    bufferedAmount:0,
+    // Joystik holati: soniyasiga ko'pi bilan ~12 marta, faqat eng oxirgisi (server tiqilib, kechikish yig'ilmasin).
+    // Zarb / ol-ot tugmalari darhol yuboriladi.
+    send:function(t){
+      if(!L.cl||L.readyState!==1) return;
+      if(t.indexOf('m:')!==0){ try{ L.cl.publish(up,t); }catch(e){} return; }
+      L.pendMove=t;
+      var wait=80-(performance.now()-L.lastMove);
+      if(wait<=0) sendMove();
+      else if(!L.moveTimer) L.moveTimer=setTimeout(sendMove,wait);
+    }};
+  function sendMove(){
+    L.moveTimer=null;
+    if(!L.pendMove||!L.cl||L.readyState!==1) return;
+    L.lastMove=performance.now();
+    var t=L.pendMove; L.pendMove='';
+    try{ L.cl.publish(up,t); }catch(e){}
+  }
   function fail(){
     if(L.readyState===3) return; L.readyState=3;
-    clearInterval(L.tick);
+    clearInterval(L.tick); clearTimeout(L.moveTimer);
     try{ if(L.cl){ L.cl.publish(up,'__bye'); L.cl.end(true); } }catch(e){}
     if(L.onclose) L.onclose();
   }
