@@ -27,9 +27,9 @@
           Bo'sh qolsa — o'rniga Tapvora Games banneri (Astro Dodge) chiqadi.
           Banner faqat MENYUDA ko'rinadi, o'yin paytida yashiriladi.
        ================================================================== -->
-  <meta name="description" content="Silk Road Rumble — Ipak yo'lidagi to'polon. Telefonni pult qilib, do'stlar bilan bitta ekranda o'ynaladigan o'zbekcha party o'yin. Tapvora Games.">
+  <meta name="description" content="Silk Road Rumble — a party game where your phone is the controller: play with friends on one screen. Ko'pkari, Registon Kurashi, Tilla Karvon and the Dev boss fight! / Ipak yo'lidagi to'polon — telefonni pult qilib, do'stlar bilan bitta ekranda o'ynaladigan party o'yin. Tapvora Games.">
   <meta property="og:title" content="Silk Road Rumble — Tapvora Games">
-  <meta property="og:description" content="Telefon — pult, kompyuter — maydon. Ko'pkari, Registon kurashi, Tilla karvon va Dev jangi!">
+  <meta property="og:description" content="Your phone is the controller, the computer is the arena. Ko'pkari, Registon Kurashi, Tilla Karvon and the Dev boss fight! / Telefon — pult, kompyuter — maydon.">
   <meta property="og:type" content="website">
   <meta name="theme-color" content="#1a1612">
 
@@ -114,11 +114,11 @@
     <div id="stage">
       <div id="unity-container">
         <canvas id="unity-canvas" tabindex="-1"></canvas>
-        <button id="fs" title="To'liq ekran" aria-label="To'liq ekran">&#x26F6;</button>
+        <button id="fs" title="Full screen" aria-label="Full screen">&#x26F6;</button>
         <div id="loading">
           <h1>Silk Road Rumble</h1>
           <div id="bar"><div id="fill"></div></div>
-          <div id="loadtxt">Yuklanmoqda… 0%</div>
+          <div id="loadtxt">0%</div>
           <div id="err"></div>
         </div>
       </div>
@@ -135,10 +135,10 @@
   <div id="rw"><div class="rw-card">
     <div class="rw-title" id="rw-title">&#127873; Bonus</div>
     <div id="rw-house">
-      <div class="hz-tag">REKLAMA &middot; TAPVORA GAMES</div>
+      <div class="hz-tag" id="hz-tag">REKLAMA &middot; TAPVORA GAMES</div>
       <div class="hz-sky"><span class="hz-rocket">&#128640;</span><span class="hz-m m1">&#9732;</span><span class="hz-m m2">&#9732;</span></div>
       <div class="hz-name">ASTRO DODGE</div>
-      <div class="hz-sub">Kosmosda meteorlardan qoching! Bepul, brauzerda.</div>
+      <div class="hz-sub" id="hz-sub">Kosmosda meteorlardan qoching! Bepul, brauzerda.</div>
       <a id="rw-play" href="https://tapvora.github.io/astrododge/" target="_blank" rel="noopener">O'ynash &#8599;</a>
     </div>
     <div id="rw-msg"></div>
@@ -151,10 +151,64 @@
 
   <div id="rotate">
     <div class="rot-ico">&#128241;</div>
-    <div>O'yin gorizontal ekranda o'ynaladi</div>
+    <div id="rot-txt">O'yin gorizontal ekranda o'ynaladi</div>
     <button id="rot-play">&#9654; To'liq ekranda o'ynash</button>
     <button id="rot-skip">Shunday davom etish</button>
   </div>
+
+  <!-- ===================== TIL (UZ / EN) =====================
+       Sahifa yozuvlari o'yin tilida. Til: localStorage "srr_lang" (o'yin o'zi yozadi —
+       Loc.cs → WebLang.jslib), bo'lmasa brauzer tili: uz → o'zbekcha, qolgani → inglizcha.
+       O'yinda til almashsa WebLang.jslib window.srrApplyLang() ni chaqiradi.            -->
+  <script>
+    var SRR_TXT = {
+      uz: {
+        loading: 'Yuklanmoqda… ', loadFail: "Yuklab bo'lmadi: ", fullscreen: "To'liq ekran",
+        adTag: 'REKLAMA · TAPVORA GAMES', houseSub: 'Kosmosda meteorlardan qoching! Bepul, brauzerda.', play: "O'ynash ↗",
+        openAd: 'Reklamani ochish ▶', claim: 'Bonusni olish', claim3: 'Bonusni olish (+3)', cancel: 'Bekor qilish',
+        adLoading: 'Reklama yuklanmoqda…', adWatch: "Reklamani ko'ring va keyingi o'yinga +3 bonus ochko oling!",
+        adOpened: 'Reklama yangi oynada ochildi… ', adCountdown: 'Reklama… ', thanks: 'Rahmat!', thanksClaim: 'Rahmat! Bonusni oling.',
+        adTitle: 'Reklama', cont: 'Davom etish ▶',
+        rotate: "O'yin gorizontal ekranda o'ynaladi", rotPlay: "▶ To'liq ekranda o'ynash", rotSkip: 'Shunday davom etish',
+        bannerTag: 'REKLAMA', bannerText: 'kosmosda meteorlardan qoching!'
+      },
+      en: {
+        loading: 'Loading… ', loadFail: 'Failed to load: ', fullscreen: 'Full screen',
+        adTag: 'AD · TAPVORA GAMES', houseSub: 'Dodge meteors in space! Free, in your browser.', play: 'Play ↗',
+        openAd: 'Open the ad ▶', claim: 'Claim bonus', claim3: 'Claim bonus (+3)', cancel: 'Cancel',
+        adLoading: 'Loading ad…', adWatch: 'Watch an ad and get +3 bonus points in the next game!',
+        adOpened: 'The ad opened in a new tab… ', adCountdown: 'Ad… ', thanks: 'Thank you!', thanksClaim: 'Thank you! Claim your bonus.',
+        adTitle: 'Ad', cont: 'Continue ▶',
+        rotate: 'This game is played in landscape', rotPlay: '▶ Play full screen', rotSkip: 'Continue anyway',
+        bannerTag: 'AD', bannerText: 'dodge meteors in space!'
+      }
+    };
+    window.SRR_LANG = (function () {
+      var l = '';
+      try { l = localStorage.getItem('srr_lang') || ''; } catch (e) {}
+      if (l !== 'uz' && l !== 'en') {
+        var n = (((navigator.languages && navigator.languages[0]) || navigator.language || '') + '').toLowerCase();
+        l = n.indexOf('uz') === 0 ? 'uz' : 'en';
+      }
+      return l;
+    })();
+    function srrT(k) {
+      var d = SRR_TXT[window.SRR_LANG] || SRR_TXT.en;
+      return d[k] !== undefined ? d[k] : SRR_TXT.uz[k];
+    }
+    window.srrApplyLang = function (l) {
+      if (l === 'uz' || l === 'en') window.SRR_LANG = l;
+      try { document.documentElement.lang = window.SRR_LANG; } catch (e) {}
+      function set(id, text) { var el = document.getElementById(id); if (el) el.textContent = text; }
+      var fsb = document.getElementById('fs');
+      if (fsb) { fsb.title = srrT('fullscreen'); fsb.setAttribute('aria-label', srrT('fullscreen')); }
+      set('hz-tag', srrT('adTag')); set('hz-sub', srrT('houseSub')); set('rw-play', srrT('play'));
+      set('rw-go', srrT('openAd')); set('rw-cancel', srrT('cancel'));
+      set('rot-txt', srrT('rotate')); set('rot-play', srrT('rotPlay')); set('rot-skip', srrT('rotSkip'));
+      if (typeof window.srrRefreshHouseBanner === 'function') window.srrRefreshHouseBanner();
+    };
+    window.srrApplyLang(window.SRR_LANG);
+  </script>
 
   <!-- ===================== BANNER KODLARI (o'z saytda) =====================
        Kodlarni <template ...> va </template> ORASIGA butunligicha qo'ying.
@@ -417,7 +471,8 @@
       el.title.innerHTML = title;
       el.house.style.display = 'none';
       el.go.style.display = 'none'; el.claim.style.display = 'none'; el.cancel.style.display = '';
-      el.claim.disabled = true; el.claim.textContent = 'Bonusni olish';
+      el.claim.disabled = true; el.claim.textContent = srrT('claim');
+      el.go.textContent = srrT('openAd'); el.cancel.textContent = srrT('cancel');
       el.go.onclick = el.claim.onclick = el.cancel.onclick = null;
       el.box.style.display = 'flex';
       return el;
@@ -429,12 +484,12 @@
       el.go.style.display = 'none';
       el.claim.style.display = ''; el.claim.disabled = true; el.claim.textContent = doneLabel;
       var left = HOUSE_AD_SEC;
-      el.msg.textContent = 'Reklama… ' + left + ' s';
+      el.msg.textContent = srrT('adCountdown') + left + ' s';
       var timer = setInterval(function () {
         left--;
-        if (left > 0) { el.msg.textContent = 'Reklama… ' + left + ' s'; return; }
+        if (left > 0) { el.msg.textContent = srrT('adCountdown') + left + ' s'; return; }
         clearInterval(timer);
-        el.msg.textContent = 'Rahmat!';
+        el.msg.textContent = srrT('thanks');
         el.claim.disabled = false;
       }, 1000);
       return function stop() { clearInterval(timer); };
@@ -446,7 +501,7 @@
           toUnity('OnWebAdOpened'); // o'yinchi qaror qilguncha "javob kelmadi" taymeri ishlamasin
           var el = adBox('&#127873; Bonus');
           var done = false, stopHouse = null, timer = null, openedAt = 0;
-          el.msg.textContent = 'Reklama yuklanmoqda…';
+          el.msg.textContent = srrT('adLoading');
 
           function finish(ok) {
             if (done) return; done = true;
@@ -463,13 +518,13 @@
           el.claim.onclick = function () { if (!el.claim.disabled) finish(true); };
 
           function useHouse() {
-            stopHouse = runHouseAd(el, "Bonusni olish (+3)");
+            stopHouse = runHouseAd(el, srrT('claim3'));
           }
 
           probeMonetag().then(function (ok) {
             if (done) return;
             if (!ok) { useHouse(); return; }
-            el.msg.textContent = "Reklamani ko'ring va keyingi o'yinga +3 bonus ochko oling!";
+            el.msg.textContent = srrT('adWatch');
             el.go.style.display = '';
             el.go.onclick = function () {
               var w = window.open(MONETAG_DIRECT_LINK, '_blank');
@@ -480,8 +535,8 @@
               document.addEventListener('visibilitychange', onVis);
               timer = setInterval(function () {
                 var left = Math.ceil((MIN_AWAY_MS - (Date.now() - openedAt)) / 1000);
-                if (left > 0) { el.msg.textContent = 'Reklama yangi oynada ochildi… ' + left + ' s'; }
-                else { el.msg.textContent = 'Rahmat! Bonusni oling.'; el.claim.disabled = false; clearInterval(timer); }
+                if (left > 0) { el.msg.textContent = srrT('adOpened') + left + ' s'; }
+                else { el.msg.textContent = srrT('thanksClaim'); el.claim.disabled = false; clearInterval(timer); }
               }, 250);
             };
           });
@@ -492,9 +547,9 @@
       window.monetagShowInterstitial = function () {
         return new Promise(function (resolve) {
           toUnity('OnWebAdOpened');
-          var el = adBox('Reklama');
+          var el = adBox(srrT('adTitle'));
           el.cancel.style.display = 'none';
-          var stop = runHouseAd(el, "Davom etish &#9654;".replace('&#9654;', '▶'));
+          var stop = runHouseAd(el, srrT('cont'));
           el.claim.onclick = function () {
             if (el.claim.disabled) return;
             stop(); el.box.style.display = 'none'; resolve();
@@ -582,7 +637,7 @@
       var useSmall = phone || !ADSTERRA_BANNER_PC.trim();
       var w = useSmall ? 320 : 728, h = useSmall ? 50 : 90;
       var f = document.createElement('iframe');
-      f.width = w; f.height = h; f.scrolling = 'no'; f.title = 'Reklama';
+      f.width = w; f.height = h; f.scrolling = 'no'; f.title = srrT('adTitle');
       f.setAttribute('srcdoc', '<!DOCTYPE html><html><head><base target="_blank"><style>html,body{margin:0;overflow:hidden;background:transparent}</style></head><body>' + code + '</body></html>');
       return f;
     }
@@ -620,15 +675,24 @@
         slot.innerHTML = ''; bannerShown = false;
       }
     }
+    function houseBannerHtml() {
+      return '<a class="hb" href="https://tapvora.github.io/astrododge/" target="_blank" rel="noopener">' +
+        '<span class="hb-tag">' + srrT('bannerTag') + '</span> &#128640; <b>ASTRO DODGE</b> — ' + srrT('bannerText') +
+        ' <span class="hb-go">' + srrT('play') + '</span></a>';
+    }
     function showHouseBanner(slot) {
       if (bannerWanted && !bannerShown) {
-        slot.innerHTML = '<a class="hb" href="https://tapvora.github.io/astrododge/" target="_blank" rel="noopener">' +
-          '<span class="hb-tag">REKLAMA</span> &#128640; <b>ASTRO DODGE</b> — kosmosda meteorlardan qoching! <span class="hb-go">O\'ynash &#8599;</span></a>';
+        slot.innerHTML = houseBannerHtml();
         bannerShown = true;
       } else if (!bannerWanted && bannerShown) {
         slot.innerHTML = ''; bannerShown = false;
       }
     }
+    // Til almashsa (srrApplyLang) — ko'rinib turgan o'z bannerimiz ham yangi tilda
+    window.srrRefreshHouseBanner = function () {
+      var slot = document.getElementById('ad-banner-bottom');
+      if (slot && slot.querySelector('.hb')) slot.innerHTML = houseBannerHtml();
+    };
     window.srrAds.banner = function (show) { bannerWanted = !!show; applyBanner(); };
 
     // ----- To'liq ekran (butun sahifa — reklama oynalari ham ko'rinadi) va telefonda gorizontal -----
@@ -662,7 +726,7 @@
 
     createUnityInstance(canvas, config, function (p) {
       fill.style.width = (p * 100) + '%';
-      loadtxt.textContent = 'Yuklanmoqda… ' + Math.round(p * 100) + '%';
+      loadtxt.textContent = srrT('loading') + Math.round(p * 100) + '%';
     }).then(function (unityInstance) {
       window.unityInstance = unityInstance;
       pg.unityLoaded = true;
@@ -675,7 +739,7 @@
     }).catch(function (message) {
       loadtxt.style.display = 'none';
       err.style.display = 'block';
-      err.textContent = 'Yuklab bo\'lmadi: ' + message;
+      err.textContent = srrT('loadFail') + message;
       console.error(message);
     });
   </script>

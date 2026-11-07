@@ -44,26 +44,59 @@ button.big{margin-top:18px;width:100%;max-width:320px;font-size:24px;font-weight
 <body>
 <div id='join' class='screen on'>
   <h1>SILK ROAD RUMBLE</h1>
-  <div class='sub'>Ipak yo'lidagi to'polon · Tapvora Games</div>
+  <div class='sub' id='t_sub'>Ipak yo'lidagi to'polon · Tapvora Games</div>
   <input id='name' maxlength='14' placeholder='Ismingiz'>
   <button class='big' id='go'>O'YINGA KIRISH</button>
 </div>
 <div id='pad' class='screen'>
-  <div id='bar'><div id='me'>—</div><div id='ver'>v5</div><div id='status'>Ulanmoqda...</div></div>
+  <div id='bar'><div id='me'>—</div><div id='ver'>v7</div><div id='status'>Ulanmoqda...</div></div>
   <div id='stick'><div id='base'><div id='knob'></div></div></div>
   <div id='stickLbl'>YURISH</div>
   <button id='act' class='btn'><span class='ic'>✋</span><span id='actl'>OL / OT</span><small id='acts'>uloq</small></button>
-  <button id='dash' class='btn'><span class='ic'>⚡</span>ZARB<small>tezlanib urish</small></button>
-  <div class='hint'>Chap — yurish · ⚡ ZARB — tez otilib raqibni urish</div>
+  <button id='dash' class='btn'><span class='ic'>⚡</span><span id='dashl'>ZARB</span><small id='dashs'>tezlanib urish</small></button>
+  <div class='hint' id='hint'>Chap — yurish · ⚡ ZARB — tez otilib raqibni urish</div>
   <div id='flash'></div>
-  <div id='rot'><b>&#8635;</b>Telefonni yoting<br>(gorizontal holatda o'ynang)</div>
+  <div id='rot'><b>&#8635;</b><span id='rott'>Telefonni yoting<br>(gorizontal holatda o'ynang)</span></div>
 </div>
 <!-- Ekran o'chmasin: ko'rinmas, ovozsiz, aylanib turuvchi kichik video (NoSleep usuli) -->
 <video id='ns' muted playsinline loop style='position:absolute;width:1px;height:1px;opacity:0;pointer-events:none'><source src='data:video/webm;base64,GkXfo59ChoEBQveBAULygQRC84EIQoKEd2VibUKHgQJChYECGFOAZwEAAAAAAAH9EU2bdLpNu4tTq4QVSalmU6yBoU27i1OrhBZUrmtTrIHYTbuMU6uEElTDZ1OsggEeTbuMU6uEHFO7a1OsggHn7AEAAAAAAABZAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAVSalmsirXsYMPQkBNgI1MYXZmNjAuMTYuMTAwV0GNTGF2ZjYwLjE2LjEwMESJiECfQAAAAAAAFlSua8GuAQAAAAAAADjXgQFzxYhvLmVVhuiZOJyBACK1nIN1bmSIgQCGhVZfVlA4g4EBI+ODhDuaygDgibCBELqBEJqBAhJUw2f8c3OgY8CAZ8iaRaOHRU5DT0RFUkSHjUxhdmY2MC4xNi4xMDBzc9ZjwItjxYhvLmVVhuiZOGfIoUWjh0VOQ09ERVJEh5RMYXZjNjAuMzEuMTAyIGxpYnZweGfIoUWjiERVUkFUSU9ORIeTMDA6MDA6MDIuMDAwMDAwMDAwAB9DtnXD54EAo6OBAACAEAIAnQEqEAAQAABHCIWFiJmEiAICAAwNYAD+/6tQgKOZgQPoALEBAAEQEAAYADA/9AwAAAD+/6tQgBxTu2uRu4+zgQC3iveBAfGCAZ/wgQM=' type='video/webm'><source src='data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAMpbW9vdgAAAGxtdmhkAAAAAAAAAAAAAAAAAAAD6AAAB9AAAQAAAQAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAlN0cmFrAAAAXHRraGQAAAADAAAAAAAAAAAAAAABAAAAAAAAB9AAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAABAAAAAQAAAAAAAkZWR0cwAAABxlbHN0AAAAAAAAAAEAAAfQAAAAAAABAAAAAAHLbWRpYQAAACBtZGhkAAAAAAAAAAAAAAAAAABAAAAAgABVxAAAAAAALWhkbHIAAAAAAAAAAHZpZGUAAAAAAAAAAAAAAABWaWRlb0hhbmRsZXIAAAABdm1pbmYAAAAUdm1oZAAAAAEAAAAAAAAAAAAAACRkaW5mAAAAHGRyZWYAAAAAAAAAAQAAAAx1cmwgAAAAAQAAATZzdGJsAAAAtnN0c2QAAAAAAAAAAQAAAKZhdmMxAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAABAAEABIAAAASAAAAAAAAAABFUxhdmM2MC4zMS4xMDIgbGlieDI2NAAAAAAAAAAAAAAAGP//AAAALGF2Y0MBQsAK/+EAFWdCwAraewEQAAADABAAAAMAIPEiagEABGjOD8gAAAAQcGFzcAAAAAEAAAABAAAAFGJ0cnQAAAAAAAAKOAAACjgAAAAYc3R0cwAAAAAAAAABAAAAAgAAQAAAAAAUc3RzcwAAAAAAAAABAAAAAQAAABxzdHNjAAAAAAAAAAEAAAABAAAAAgAAAAEAAAAcc3RzegAAAAAAAAAAAAAAAgAAAoUAAAAJAAAAFHN0Y28AAAAAAAAAAQAAA1kAAABidWR0YQAAAFptZXRhAAAAAAAAACFoZGxyAAAAAAAAAABtZGlyYXBwbAAAAAAAAAAAAAAAAC1pbHN0AAAAJal0b28AAAAdZGF0YQAAAAEAAAAATGF2ZjYwLjE2LjEwMAAAAAhmcmVlAAAClm1kYXQAAAJvBgX//2vcRem95tlIt5Ys2CDZI+7veDI2NCAtIGNvcmUgMTY0IHIzMTA4IDMxZTE5ZjkgLSBILjI2NC9NUEVHLTQgQVZDIGNvZGVjIC0gQ29weWxlZnQgMjAwMy0yMDIzIC0gaHR0cDovL3d3dy52aWRlb2xhbi5vcmcveDI2NC5odG1sIC0gb3B0aW9uczogY2FiYWM9MCByZWY9MSBkZWJsb2NrPTE6MDowIGFuYWx5c2U9MHgxOjB4MTExIG1lPWhleCBzdWJtZT0yIHBzeT0xIHBzeV9yZD0xLjAwOjAuMDAgbWl4ZWRfcmVmPTAgbWVfcmFuZ2U9MTYgY2hyb21hX21lPTEgdHJlbGxpcz0wIDh4OGRjdD0wIGNxbT0wIGRlYWR6b25lPTIxLDExIGZhc3RfcHNraXA9MSBjaHJvbWFfcXBfb2Zmc2V0PTAgdGhyZWFkcz0xIGxvb2thaGVhZF90aHJlYWRzPTEgc2xpY2VkX3RocmVhZHM9MCBucj0wIGRlY2ltYXRlPTEgaW50ZXJsYWNlZD0wIGJsdXJheV9jb21wYXQ9MCBjb25zdHJhaW5lZF9pbnRyYT0wIGJmcmFtZXM9MCB3ZWlnaHRwPTAga2V5aW50PTI1MCBrZXlpbnRfbWluPTEgc2NlbmVjdXQ9NDAgaW50cmFfcmVmcmVzaD0wIHJjX2xvb2thaGVhZD0xMCByYz1jcmYgbWJ0cmVlPTEgY3JmPTIzLjAgcWNvbXA9MC42MCBxcG1pbj0wIHFwbWF4PTY5IHFwc3RlcD00IGlwX3JhdGlvPTEuNDAgYXE9MToxLjAwAIAAAAAOZYiEBb///w9FAAFPf4AAAAAFQZogFfU=' type='video/mp4'></video>
 <script>
-var VER=6;
+var VER=7;
 var ws=null, name='', mx=0, my=0, lastSent='', stickId=null;
 var $=function(id){return document.getElementById(id)};
+
+// ---- Til (uz / en) ----
+// 1) QR manzilidagi ?l= (o'yin tanlagan til)  2) oldin saqlangan  3) telefon tili: uz → o'zbekcha, qolgani → inglizcha.
+// O'yin ulanganda 'l:uz' / 'l:en' yuboradi — sahifa o'yin tiliga o'tadi.
+var TXT={
+  uz:{sub:'Ipak yo\'lidagi to\'polon · Tapvora Games',name:'Ismingiz',go:'O\'YINGA KIRISH',conn:'Ulanmoqda...',move:'YURISH',
+      act:'OL / OT',acts:'uloq',dash:'ZARB',dashs:'tezlanib urish',hint:'Chap — yurish · ⚡ ZARB — tez otilib raqibni urish',
+      rot:'Telefonni yoting<br>(gorizontal holatda o\'ynang)',guest:'Mehmon',slow:'Internet sekin — qayta urinilmoqda',
+      fail:'Ulanib bo\'lmadi',noans:'O\'yin javob bermayapti — QR kodni qayta skanerlang',ok:'Ulandi!',lost:'Uzildi... qayta ulanmoqda'},
+  en:{sub:'Chaos on the Silk Road · Tapvora Games',name:'Your name',go:'JOIN THE GAME',conn:'Connecting...',move:'MOVE',
+      act:'GRAB / THROW',acts:'uloq',dash:'DASH',dashs:'charge & hit',hint:'Left — move · ⚡ DASH — charge into rivals',
+      rot:'Turn your phone sideways<br>(play in landscape)',guest:'Guest',slow:'Slow internet — retrying',
+      fail:'Could not connect',noans:'The game is not responding — scan the QR code again',ok:'Connected!',lost:'Disconnected... reconnecting'}
+};
+var LANG=((location.search.match(/[?&]l=(uz|en)/)||[])[1])||'';
+if(!LANG){ try{ LANG=localStorage.getItem('srr_lang')||''; }catch(e){} }
+if(LANG!=='uz'&&LANG!=='en'){ var nl=(((navigator.languages&&navigator.languages[0])||navigator.language||'')+'').toLowerCase(); LANG=nl.indexOf('uz')===0?'uz':'en'; }
+var actCustom=false; // o'yin tugma yozuvini o'zi yuborgan (k:1:...)
+// T — tarjima (L nomi peerLink ichida band)
+function T(k){ return (TXT[LANG]||TXT.en)[k]; }
+function applyLang(l){
+  if(l!=='uz'&&l!=='en') return;
+  LANG=l;
+  try{ localStorage.setItem('srr_lang',l); }catch(e){}
+  try{ document.documentElement.lang=l; }catch(e){}
+  $('t_sub').textContent=T('sub'); $('name').placeholder=T('name'); $('go').textContent=T('go');
+  $('stickLbl').textContent=T('move'); $('dashl').textContent=T('dash'); $('dashs').textContent=T('dashs');
+  $('hint').textContent=T('hint'); $('rott').innerHTML=T('rot');
+  if(!actCustom){ $('actl').textContent=T('act'); $('acts').textContent=T('acts'); }
+  if(!ws) $('status').textContent=T('conn');
+}
+applyLang(LANG);
+
 var did='';
 try{ $('name').value=localStorage.getItem('srr_name')||''; did=localStorage.getItem('srr_id')||''; }catch(e){}
 if(!did){ did=Math.random().toString(36).substring(2,10); try{ localStorage.setItem('srr_id',did); }catch(e){} }
@@ -77,7 +110,7 @@ document.addEventListener('gesturestart',function(e){ e.preventDefault(); });
 function lockLand(){ try{ if(screen.orientation&&screen.orientation.lock){ screen.orientation.lock('landscape').catch(function(){}); } }catch(e){} }
 
 $('go').onclick=function(){
-  name=($('name').value||'').trim()||'Mehmon';
+  name=($('name').value||'').trim()||T('guest');
   try{ localStorage.setItem('srr_name',name); }catch(e){}
   $('join').classList.remove('on'); $('pad').classList.add('on');
   $('me').textContent=name;
@@ -133,10 +166,10 @@ function peerLink(room){
     if(L.onclose) L.onclose();
   }
   loadMqtt(function(err){
-    if(err){ L.why='Internet sekin — qayta urinilmoqda'; return fail(); }
+    if(err){ L.why=T('slow'); return fail(); }
     var url=BROKERS[BRK]||BROKERS[0];
     var cl; try{ cl=mqtt.connect(url,{clientId:cid,connectTimeout:10000,reconnectPeriod:0,clean:true,
-      will:{topic:up,payload:'__bye',qos:0,retain:false}}); }catch(e){ L.why='Ulanib bo\'lmadi'; return fail(); }
+      will:{topic:up,payload:'__bye',qos:0,retain:false}}); }catch(e){ L.why=T('fail'); return fail(); }
     L.cl=cl;
     cl.on('connect',function(){
       cl.subscribe(down,{qos:0},function(){
@@ -146,7 +179,7 @@ function peerLink(room){
         // Yurak urishi: o'yin 12 soniya javob bermasa — qayta ulanamiz
         L.tick=setInterval(function(){
           try{ cl.publish(up,'__p'); }catch(e){}
-          if(Date.now()-L.lastPong>12000){ L.why='O\'yin javob bermayapti — QR kodni qayta skanerlang'; fail(); }
+          if(Date.now()-L.lastPong>12000){ L.why=T('noans'); fail(); }
         },4000);
       });
     });
@@ -160,7 +193,7 @@ function peerLink(room){
     });
     cl.on('error',function(){ fail(); });
     cl.on('close',function(){ fail(); });
-    setTimeout(function(){ if(L.readyState===0){ L.why='Internet sekin — qayta urinilmoqda'; fail(); } },15000);
+    setTimeout(function(){ if(L.readyState===0){ L.why=T('slow'); fail(); } },15000);
   });
   return L;
 }
@@ -170,17 +203,18 @@ function connect(){
     var again=joinedOnce;
     s.send((joinedOnce?'r:':'n:')+did+'|'+name);
     s.send('v:'+VER);
-    joinedOnce=true; $('status').textContent='Ulandi!';
+    joinedOnce=true; $('status').textContent=T('ok');
     lastSent=''; flush(true);
     if(again&&!ROOM) checkVer();
   };
   // Faqat joriy ulanish uzilsa qayta ulanamiz (eski ulanishlar takrorlanib ketmasin)
-  s.onclose=function(){ if(ws!==s) return; $('status').textContent=s.why||'Uzildi... qayta ulanmoqda'; setTimeout(connect,ROOM?2500:1200); };
+  s.onclose=function(){ if(ws!==s) return; $('status').textContent=s.why||T('lost'); setTimeout(connect,ROOM?2500:1200); };
   s.onmessage=function(e){
     var m=e.data;
     if(m==='v'){ try{navigator.vibrate&&navigator.vibrate(120);}catch(x){} $('flash').style.opacity=.5; setTimeout(function(){$('flash').style.opacity=0;},150); }
-    else if(m.indexOf('k:1')===0){ var q=m.split(':'); $('actl').textContent=q[2]||'OL / OT'; $('acts').textContent=q[3]||'uloq'; $('act').classList.add('on'); }
-    else if(m==='k:0'){ $('act').classList.remove('on'); }
+    else if(m.indexOf('k:1')===0){ var q=m.split(':'); actCustom=!!q[2]; $('actl').textContent=q[2]||T('act'); $('acts').textContent=q[3]||T('acts'); $('act').classList.add('on'); }
+    else if(m==='k:0'){ actCustom=false; $('act').classList.remove('on'); }
+    else if(m.indexOf('l:')===0){ applyLang(m.substring(2)); }
     else if(m.indexOf('s:')===0){ $('status').textContent=m.substring(2); }
     else if(m.indexOf('c:')===0){ var p=m.split(':'); $('me').textContent=p[2]; $('me').style.color=p[1]; $('knob').style.background=p[1]; $('base').style.borderColor=p[1]; }
   };
