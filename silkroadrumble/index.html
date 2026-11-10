@@ -313,9 +313,44 @@
     }
 
     // Reklama har qanday yo'l bilan tugaganda (WebAds.jslib chaqiradi): ovoz qaytadi, tugma yana ishlaydi
+    // Portal reklamasi o'yin oynasidan tashqarida (portal sahifasida) ochiladi. O'yin to'liq ekranda
+    // bo'lsa reklama uning orqasida qolib ko'rinmaydi — shuning uchun reklamadan oldin to'liq ekrandan chiqamiz.
+    var fsRestore = false;
+    function leaveFullscreenForAd(go) {
+      var fsEl = document.fullscreenElement || document.webkitFullscreenElement;
+      if (!fsEl) { go(); return; }
+      fsRestore = true;
+      var done = false;
+      function next() {
+        if (done) return; done = true;
+        document.removeEventListener('fullscreenchange', next);
+        document.removeEventListener('webkitfullscreenchange', next);
+        go();
+      }
+      document.addEventListener('fullscreenchange', next);
+      document.addEventListener('webkitfullscreenchange', next);
+      try {
+        var ex = document.exitFullscreen || document.webkitExitFullscreen;
+        var p = ex && ex.call(document);
+        if (p && p.catch) p.catch(function () {});
+      } catch (e) {}
+      setTimeout(next, 700);
+    }
+    // Reklamadan keyin ekranga birinchi teginishda to'liq ekranga qaytadi (brauzer teginishsiz ruxsat bermaydi)
+    function restoreFullscreenOnTap() {
+      if (!fsRestore) return;
+      fsRestore = false;
+      function onTap() {
+        document.removeEventListener('pointerdown', onTap, true);
+        goFullscreen(window.matchMedia('(pointer: coarse)').matches);
+      }
+      document.addEventListener('pointerdown', onTap, true);
+    }
+
     window.srrAfterAd = function () {
       pg.rewarded = null;
       pg.interstitial = null;
+      restoreFullscreenOnTap();
       function clearPause() { setPauseReason('portal', false); setPauseReason('audioOff', false); }
       setTimeout(clearPause, 0);
       setTimeout(clearPause, 1500); // portal "pauza"ni kechikib yuborsa ham
@@ -631,12 +666,14 @@
           var job = { granted: false, started: false, resolve: resolve, reject: reject };
           pg.rewarded = job;
           adAsked = true; adGranted = false; adTrace = [];
-          try { bridge.advertisement.showRewarded('bonus_ochko'); }
-          catch (e) { adNote('error'); pg.rewarded = null; reject(e); return; }
-          // Portal reklamani bermasa: o'yin va ovoz uzoq kutib qolmasin
-          setTimeout(function () {
-            if (pg.rewarded === job && !job.started) { adNote('no_ad'); pg.rewarded = null; reject('no_ad'); }
-          }, 10000);
+          leaveFullscreenForAd(function () {
+            try { bridge.advertisement.showRewarded('bonus_ochko'); }
+            catch (e) { adNote('error'); pg.rewarded = null; reject(e); return; }
+            // Portal reklamani bermasa: o'yin va ovoz uzoq kutib qolmasin
+            setTimeout(function () {
+              if (pg.rewarded === job && !job.started) { adNote('no_ad'); pg.rewarded = null; reject('no_ad'); }
+            }, 10000);
+          });
         });
       },
       showInterstitial: function () {
@@ -645,12 +682,14 @@
         return new Promise(function (resolve) {
           var job = { started: false, resolve: resolve };
           pg.interstitial = job;
-          try { bridge.advertisement.showInterstitial('oyinlar_orasida'); }
-          catch (e) { pg.interstitial = null; resolve(); return; }
-          // Portal reklamani bermasa (masalan vaqt chegarasi) — 3 soniyadan keyin o'yin davom etadi
-          setTimeout(function () {
-            if (pg.interstitial === job && !job.started) { pg.interstitial = null; resolve(); }
-          }, 3000);
+          leaveFullscreenForAd(function () {
+            try { bridge.advertisement.showInterstitial('oyinlar_orasida'); }
+            catch (e) { pg.interstitial = null; resolve(); return; }
+            // Portal reklamani bermasa (masalan vaqt chegarasi) — 3 soniyadan keyin o'yin davom etadi
+            setTimeout(function () {
+              if (pg.interstitial === job && !job.started) { pg.interstitial = null; resolve(); }
+            }, 3000);
+          });
         });
       }
     };
