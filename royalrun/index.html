@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0b0b0e">
+  <title>Royal Run</title>
+  <style>
+    html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #0b0b0e; overscroll-behavior: none; }
+    /* Telefon: sahifani tortish (pull-to-refresh), belgilash va uzoq bosish menyusi o'yinni buzmasin */
+    body { touch-action: none; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; }
+    #unity-canvas { position: fixed; left: 0; top: 0; width: 100%; height: 100%; display: block; background: #0b0b0e; outline: none; }
+    #loader { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+              font-family: Arial, Helvetica, sans-serif; color: #e8c25a; background: #0b0b0e; z-index: 10; }
+    #loader h1 { margin: 0 0 24px 0; font-size: clamp(28px, 6vw, 56px); letter-spacing: 4px; }
+    #bar { width: min(70vw, 480px); height: 14px; border: 2px solid #9e7f3d; border-radius: 8px; overflow: hidden; }
+    #fill { width: 0%; height: 100%; background: #e8c25a; transition: width 0.2s; }
+    #status { margin-top: 14px; font-size: 16px; color: #a8a49a; text-align: center; padding: 0 16px; }
+  </style>
+  <!-- Portal SDK skripti (Playgama Bridge yoki CrazyGames SDK) portal talabiga ko'ra shu yerga qo'shiladi. -->
+</head>
+<body>
+  <canvas id="unity-canvas" tabindex="-1"></canvas>
+  <div id="loader">
+    <h1>Royal Run</h1>
+    <div id="bar"><div id="fill"></div></div>
+    <div id="status">Loading...</div>
+  </div>
+  <script>
+    // Onlayn xonada/poygada tab yashirin bo'lsa ham o'yin ishlashi uchun: brauzer fon tabda requestAnimationFrame ni
+    // to'xtatadi (xona egasi to'xtasa boshqalar ulana olmaydi). window.royalRunKeepAlive yoqilganda (o'yin .jslib orqali
+    // onlayn holatda yoqadi) yashirin tabda kadrlar Web Worker taymeri bilan (~30 fps) davom etadi. Oddiy o'yinda - yo'q.
+    (function () {
+      window.royalRunKeepAlive = /[?&]rrtest=/.test(window.location.search);
+      var queue = [], worker = null, failed = false;
+      function ensureWorker() {
+        if (worker || failed) return;
+        try {
+          var blob = new Blob(['setInterval(function(){postMessage(0)},33);'], { type: 'text/javascript' });
+          worker = new Worker(URL.createObjectURL(blob));
+          worker.onmessage = function () {
+            if (!queue.length) return;
+            var now = performance.now(), keep = [], due = [];
+            for (var i = 0; i < queue.length; i++) (now - queue[i].t >= 60 ? due : keep).push(queue[i]);
+            queue = keep;
+            for (var j = 0; j < due.length; j++) { try { due[j].run(now); } catch (e) { console.error(e); } }
+          };
+        } catch (e) { failed = true; worker = null; }
+      }
+      var nativeRaf = window.requestAnimationFrame.bind(window);
+      // Har kadr ikki yo'l bilan rejalashtiriladi: oddiy rAF (ko'rinib tursa) va Worker zaxirasi (60 ms ichida rAF kelmasa).
+      // document.hidden ga tayanmaydi - ba'zi brauzer/oynalarda tab yashirin bo'lsa ham hidden=false bo'ladi, lekin rAF to'xtaydi.
+      window.requestAnimationFrame = function (cb) {
+        if (!window.royalRunKeepAlive) return nativeRaf(cb);
+        ensureWorker();
+        var done = false;
+        var run = function (t) { if (done) return; done = true; cb(t); };
+        var id = nativeRaf(run);
+        if (worker) queue.push({ run: run, t: performance.now() });
+        return id;
+      };
+    })();
+
+    (function () {
+      var canvas = document.getElementById('unity-canvas');
+      var fill = document.getElementById('fill');
+      var status = document.getElementById('status');
+      var loader = document.getElementById('loader');
+      var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+      // ?room=KOD - o'yin Application.absoluteURL orqali o'qiydi (onlayn xonaga avtomatik kirish oynasi).
+      try {
+        var room = new URLSearchParams(window.location.search).get('room');
+        if (room) window.royalRunRoom = room.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6);
+      } catch (e) { }
+
+      var buildUrl = 'Build';
+      var config = {
+        dataUrl: buildUrl + '/WebGL_release.data.unityweb',
+        frameworkUrl: buildUrl + '/WebGL_release.framework.js.unityweb',
+        codeUrl: buildUrl + '/WebGL_release.wasm.unityweb',
+        streamingAssetsUrl: 'StreamingAssets',
+        companyName: "Tapvora Games",
+        productName: "Royal Run",
+        productVersion: "0.1.0",
+        // Telefonda piksel zichligi cheklanadi - tezroq ishlaydi
+        devicePixelRatio: isMobile ? Math.min(window.devicePixelRatio || 1, 1.5) : Math.min(window.devicePixelRatio || 1, 2),
+        matchWebGLToCanvasSize: true
+      };
+
+      var script = document.createElement('script');
+      script.src = buildUrl + '/WebGL_release.loader.js';
+      script.onload = function () {
+        createUnityInstance(canvas, config, function (progress) {
+          fill.style.width = Math.round(progress * 100) + '%';
+        }).then(function (instance) {
+          window.royalRunUnity = instance; // .jslib zaxira yo'li uchun (SendMessage)
+          loader.style.display = 'none';
+          canvas.focus();
+        }).catch(function (message) {
+          status.textContent = "Could not load the game (" + message + "). Check your internet, reload the page, or try another browser (Chrome / Safari).";
+        });
+      };
+      script.onerror = function () { status.textContent = "Could not load the game files. Check your internet and reload the page."; };
+      document.body.appendChild(script);
+
+      window.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+    })();
+  </script>
+</body>
+</html>
