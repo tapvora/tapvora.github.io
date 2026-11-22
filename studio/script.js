@@ -2,10 +2,10 @@
 "use strict";
 var T={
 uz:{
-title:"Tapvora Studio: veb-sayt, bot va ilova",
-desc:"Tapvora Studio: veb-sayt, Telegram bot, mobil ilova va Google Play'ga joylash. Narx va muddat oldindan aytiladi.",
-contact:"Bog'lanish",h1a:"Veb-sayt, bot va ilova:",h1b:"tez va hamyonbop narxda",
-heroP:"Mobil o'yinlar yaratish tajribamizni endi sizning biznesingiz uchun ishga solamiz. Narx aniq, muddat belgilangan, natija esa ko'z o'ngingizda.",
+title:"Tapvora Studio | Toshkentda sayt, Telegram bot va ilova yaratish",
+desc:"Tapvora Studio: Toshkentda veb-sayt, Telegram bot, mobil ilova va Google Play'ga joylash. Narx va muddat oldindan aytiladi.",
+contact:"Bog'lanish",h1a:"Veb-sayt, bot va ilova:",h1b:"tez va qulay narxda",
+heroP:"Mobil o'yinlar yaratishdagi tajribamizni endi sizning biznesingiz uchun qo'llaymiz. Narx aniq, muddat belgilangan, natija esa ko'z o'ngingizda.",
 write:"Telegramda yozish",channel:"Kanalimiz",
 servicesT:"Xizmatlar",servicesSub:"Narx ish hajmiga qarab, oldindan aytiladi.",
 s1:"Veb-sayt: vizitka va landing",d1:"Mijoz jalb qiladigan tez va har qanday telefonga mos sahifa.",
@@ -33,8 +33,8 @@ w1:"Mobil va brauzer o'yinlari.",w2:"Unity'da yaratilgan Android o'yin.",w2tag:"
 ctaT:"Loyihangizni 2-3 jumlada yozib yuboring: bir kun ichida narx va muddat bilan javob beramiz."
 },
 ru:{
-title:"Tapvora Studio — веб-сайт, бот и приложение: быстро и по честной цене",
-desc:"Tapvora Studio: веб-сайты, Telegram-боты и мобильные приложения. Понятная цена, чёткие сроки и результат, который можно увидеть.",
+title:"Tapvora Studio — веб-сайт, бот и приложение в Ташкенте: быстро и по честной цене",
+desc:"Tapvora Studio: веб-сайты, Telegram-боты и мобильные приложения в Ташкенте. Понятная цена, чёткие сроки и результат, который можно увидеть.",
 contact:"Связаться",h1a:"Веб-сайт, бот и приложение:",h1b:"быстро и по честной цене",
 heroP:"Мы делаем мобильные игры и теперь применяем этот опыт для вашего бизнеса: понятная цена, чёткие сроки и результат, который можно увидеть.",
 write:"Написать в Telegram",channel:"Наш канал",
@@ -64,8 +64,8 @@ w1:"Мобильные и браузерные игры.",w2:"Android-игра �
 ctaT:"Опишите задачу в 2–3 предложениях — ответим с ценой и сроками в течение суток."
 },
 en:{
-title:"Tapvora Studio — website, bot and app: built fast, priced fairly",
-desc:"Tapvora Studio builds websites, Telegram bots and mobile apps: clear pricing, firm timelines and results you can see.",
+title:"Tapvora Studio — website, bot and app in Tashkent: built fast, priced fairly",
+desc:"Tapvora Studio builds websites, Telegram bots and mobile apps in Tashkent: clear pricing, firm timelines and results you can see.",
 contact:"Contact us",h1a:"Website, bot and app:",h1b:"built fast, priced fairly",
 heroP:"We build mobile games, and now we put that hands-on experience to work for your business: clear pricing, firm timelines and results you can see.",
 write:"Message us on Telegram",channel:"Our channel",
